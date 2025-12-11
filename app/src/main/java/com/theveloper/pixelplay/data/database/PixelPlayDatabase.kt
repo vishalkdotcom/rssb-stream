@@ -3,6 +3,7 @@ package com.theveloper.pixelplay.data.database
 import androidx.room.Database
 import androidx.room.RoomDatabase
 import androidx.room.TypeConverters
+import com.theveloper.pixelplay.data.model.RssbContent
 import androidx.room.migration.Migration
 import androidx.sqlite.db.SupportSQLiteDatabase
 
@@ -13,16 +14,19 @@ import androidx.sqlite.db.SupportSQLiteDatabase
         SongEntity::class,
         AlbumEntity::class,
         ArtistEntity::class,
-        TransitionRuleEntity::class
+        TransitionRuleEntity::class,
+        RssbContent::class // Added for RSSB streaming content
     ],
-    version = 9, // Incremented version for audio metadata cols
+    version = 10, // Incremented for RssbContent table
     exportSchema = false
 )
+@TypeConverters(ColorConverters::class, RssbTypeConverters::class)
 abstract class PixelPlayDatabase : RoomDatabase() {
     abstract fun albumArtThemeDao(): AlbumArtThemeDao
     abstract fun searchHistoryDao(): SearchHistoryDao
     abstract fun musicDao(): MusicDao // Added MusicDao
     abstract fun transitionDao(): TransitionDao
+    abstract fun rssbContentDao(): RssbContentDao // Added for RSSB content
 
     companion object {
         val MIGRATION_3_4 = object : Migration(3, 4) {

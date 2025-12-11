@@ -97,7 +97,7 @@ import androidx.compose.ui.util.lerp
 import androidx.media3.common.util.UnstableApi
 import androidx.navigation.NavHostController
 import coil.size.Size
-import com.theveloper.pixelplay.R
+import com.personal.rssbstream.R
 import com.theveloper.pixelplay.data.model.Song
 import com.theveloper.pixelplay.data.preferences.NavBarStyle
 import com.theveloper.pixelplay.presentation.components.player.FullPlayerContent

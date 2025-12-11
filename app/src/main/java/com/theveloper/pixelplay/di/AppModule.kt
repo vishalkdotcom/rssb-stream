@@ -12,8 +12,12 @@ import com.theveloper.pixelplay.PixelPlayApplication
 import com.theveloper.pixelplay.data.database.AlbumArtThemeDao
 import com.theveloper.pixelplay.data.database.MusicDao
 import com.theveloper.pixelplay.data.database.PixelPlayDatabase
+import com.theveloper.pixelplay.data.database.RssbContentDao
 import com.theveloper.pixelplay.data.database.SearchHistoryDao
 import com.theveloper.pixelplay.data.database.TransitionDao
+import com.theveloper.pixelplay.data.network.ContentCatalogApi
+import com.theveloper.pixelplay.data.network.R2Config
+import com.theveloper.pixelplay.data.preferences.PreferencesManager
 import com.theveloper.pixelplay.data.preferences.UserPreferencesRepository
 import com.theveloper.pixelplay.data.preferences.dataStore
 import com.theveloper.pixelplay.data.media.SongMetadataEditor
@@ -22,6 +26,8 @@ import com.theveloper.pixelplay.data.repository.LyricsRepository
 import com.theveloper.pixelplay.data.repository.LyricsRepositoryImpl
 import com.theveloper.pixelplay.data.repository.MusicRepository
 import com.theveloper.pixelplay.data.repository.MusicRepositoryImpl
+import com.theveloper.pixelplay.data.repository.RemoteContentRepository
+import com.theveloper.pixelplay.data.repository.RemoteContentRepositoryImpl
 import com.theveloper.pixelplay.data.repository.TransitionRepository
 import com.theveloper.pixelplay.data.repository.TransitionRepositoryImpl
 import dagger.Module
@@ -31,6 +37,7 @@ import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
 import kotlinx.serialization.json.Json
 import javax.inject.Singleton
+import javax.inject.Named
 import kotlinx.coroutines.Dispatchers
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
@@ -193,5 +200,51 @@ object AppModule {
     @Singleton
     fun provideLrcLibApiService(retrofit: Retrofit): LrcLibApiService {
         return retrofit.create(LrcLibApiService::class.java)
+    }
+
+    // ===== RSSB Content Streaming =====
+
+    @Singleton
+    @Provides
+    fun provideRssbContentDao(database: PixelPlayDatabase): RssbContentDao {
+        return database.rssbContentDao()
+    }
+
+    /**
+     * Retrofit instance for R2 content catalog API.
+     */
+    @Provides
+    @Singleton
+    @Named("R2Retrofit")
+    fun provideR2Retrofit(okHttpClient: OkHttpClient): Retrofit {
+        return Retrofit.Builder()
+            .baseUrl(R2Config.BASE_URL + "/")
+            .client(okHttpClient)
+            .addConverterFactory(GsonConverterFactory.create())
+            .build()
+    }
+
+    @Provides
+    @Singleton
+    fun provideContentCatalogApi(@Named("R2Retrofit") retrofit: Retrofit): ContentCatalogApi {
+        return retrofit.create(ContentCatalogApi::class.java)
+    }
+
+    @Provides
+    @Singleton
+    fun provideRemoteContentRepository(
+        @ApplicationContext context: Context,
+        rssbContentDao: RssbContentDao,
+        catalogApi: ContentCatalogApi,
+        okHttpClient: OkHttpClient,
+        preferencesManager: PreferencesManager
+    ): RemoteContentRepository {
+        return RemoteContentRepositoryImpl(
+            context = context,
+            contentDao = rssbContentDao,
+            catalogApi = catalogApi,
+            okHttpClient = okHttpClient,
+            preferencesManager = preferencesManager
+        )
     }
 }

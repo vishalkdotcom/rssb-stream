@@ -9,7 +9,7 @@ import androidx.media3.session.DefaultMediaNotificationProvider
 import androidx.media3.session.MediaSession
 import androidx.media3.session.SessionCommand
 import com.google.common.collect.ImmutableList
-import com.theveloper.pixelplay.R
+import com.personal.rssbstream.R
 
 @UnstableApi
 class MusicNotificationProvider(

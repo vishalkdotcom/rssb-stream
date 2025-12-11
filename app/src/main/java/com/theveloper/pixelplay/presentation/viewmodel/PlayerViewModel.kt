@@ -75,7 +75,7 @@ import coil.request.ImageRequest
 import coil.size.Size
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.common.util.concurrent.ListenableFuture
-import com.theveloper.pixelplay.R
+import com.personal.rssbstream.R
 import com.theveloper.pixelplay.data.DailyMixManager
 import com.theveloper.pixelplay.data.EotStateHolder
 import com.theveloper.pixelplay.data.ai.AiMetadataGenerator

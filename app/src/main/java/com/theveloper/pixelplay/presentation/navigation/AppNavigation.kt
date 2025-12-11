@@ -38,6 +38,11 @@ import com.theveloper.pixelplay.presentation.screens.AboutScreen
 import com.theveloper.pixelplay.presentation.screens.SearchScreen
 import com.theveloper.pixelplay.presentation.screens.StatsScreen
 import com.theveloper.pixelplay.presentation.screens.SettingsScreen
+import com.theveloper.pixelplay.presentation.screens.rssb.AudiobooksScreen
+import com.theveloper.pixelplay.presentation.screens.rssb.DiscoursesScreen
+import com.theveloper.pixelplay.presentation.screens.rssb.QnaScreen
+import com.theveloper.pixelplay.presentation.screens.rssb.RssbHomeScreen
+import com.theveloper.pixelplay.presentation.screens.rssb.ShabadsScreen
 import com.theveloper.pixelplay.presentation.viewmodel.PlayerViewModel
 import com.theveloper.pixelplay.presentation.viewmodel.PlaylistViewModel
 import kotlinx.coroutines.flow.SharingStarted
@@ -250,6 +255,61 @@ fun AppNavigation(
                     navController = navController,
                     onNavigationIconClick = { navController.popBackStack() }
                 )
+            }
+            
+            // ===== RSSB Content Screens =====
+            
+            composable(
+                RssbScreen.RssbHome.route,
+                enterTransition = { enterTransition() },
+                exitTransition = { exitTransition() },
+                popEnterTransition = { enterTransition() },
+                popExitTransition = { exitTransition() },
+            ) {
+                RssbHomeScreen(
+                    navController = navController,
+                    paddingValues = paddingValues
+                )
+            }
+            
+            composable(
+                RssbScreen.Audiobooks.route,
+                enterTransition = { enterTransition() },
+                exitTransition = { exitTransition() },
+                popEnterTransition = { enterTransition() },
+                popExitTransition = { exitTransition() },
+            ) {
+                AudiobooksScreen(navController = navController)
+            }
+            
+            composable(
+                RssbScreen.QnA.route,
+                enterTransition = { enterTransition() },
+                exitTransition = { exitTransition() },
+                popEnterTransition = { enterTransition() },
+                popExitTransition = { exitTransition() },
+            ) {
+                QnaScreen(navController = navController)
+            }
+            
+            composable(
+                RssbScreen.Shabads.route,
+                enterTransition = { enterTransition() },
+                exitTransition = { exitTransition() },
+                popEnterTransition = { enterTransition() },
+                popExitTransition = { exitTransition() },
+            ) {
+                ShabadsScreen(navController = navController)
+            }
+            
+            composable(
+                RssbScreen.Discourses.route,
+                enterTransition = { enterTransition() },
+                exitTransition = { exitTransition() },
+                popEnterTransition = { enterTransition() },
+                popExitTransition = { exitTransition() },
+            ) {
+                DiscoursesScreen(navController = navController)
             }
         }
 }

@@ -7,7 +7,7 @@ import android.provider.OpenableColumns
 import android.util.LruCache
 import androidx.core.net.toUri
 import com.kyant.taglib.TagLib
-import com.theveloper.pixelplay.R
+import com.personal.rssbstream.R
 import com.theveloper.pixelplay.data.database.MusicDao
 import com.theveloper.pixelplay.data.model.Lyrics
 import com.theveloper.pixelplay.data.model.Song

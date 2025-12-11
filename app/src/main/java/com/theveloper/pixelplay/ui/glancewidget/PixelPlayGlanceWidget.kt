@@ -47,7 +47,7 @@ import androidx.glance.text.Text
 import androidx.glance.text.TextStyle
 import com.theveloper.pixelplay.MainActivity
 import com.theveloper.pixelplay.data.model.PlayerInfo
-import com.theveloper.pixelplay.R
+import com.personal.rssbstream.R
 import androidx.core.graphics.scale
 import androidx.glance.unit.ColorProvider
 import com.theveloper.pixelplay.data.model.QueueItem

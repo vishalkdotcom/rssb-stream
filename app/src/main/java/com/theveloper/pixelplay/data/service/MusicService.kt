@@ -35,7 +35,7 @@ import com.google.common.util.concurrent.Futures
 import com.google.common.util.concurrent.ListenableFuture
 import com.theveloper.pixelplay.MainActivity
 import com.theveloper.pixelplay.PixelPlayApplication
-import com.theveloper.pixelplay.R
+import com.personal.rssbstream.R
 import com.theveloper.pixelplay.data.model.PlayerInfo // Import new data class
 import com.theveloper.pixelplay.data.repository.MusicRepository
 import com.theveloper.pixelplay.ui.glancewidget.PixelPlayGlanceWidget

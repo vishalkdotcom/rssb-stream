@@ -32,7 +32,7 @@ import coil.request.ImageRequest
 import coil.size.Size // Import Coil's Size
 import coil.compose.SubcomposeAsyncImage
 import coil.compose.SubcomposeAsyncImageContent
-import com.theveloper.pixelplay.R
+import com.personal.rssbstream.R
 
 @Composable
 fun SmartImage(
