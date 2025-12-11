@@ -246,7 +246,7 @@ class MainActivity : ComponentActivity() {
 
     private fun persistUriPermissionIfNeeded(intent: Intent, uri: Uri) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
-            val hasPersistablePermission = intent.flags and Intent.FLAG_GRANT_PERSISTABLE_URI_PERMISSION != 0
+            val hasPersistablePermission = (intent.flags and Intent.FLAG_GRANT_PERSISTABLE_URI_PERMISSION) != 0
             if (hasPersistablePermission) {
                 val takeFlags = intent.flags and (Intent.FLAG_GRANT_READ_URI_PERMISSION or Intent.FLAG_GRANT_WRITE_URI_PERMISSION)
                 if (takeFlags != 0) {

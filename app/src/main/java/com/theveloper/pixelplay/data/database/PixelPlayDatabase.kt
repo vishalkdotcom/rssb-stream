@@ -20,7 +20,7 @@ import androidx.sqlite.db.SupportSQLiteDatabase
     version = 10, // Incremented for RssbContent table
     exportSchema = false
 )
-@TypeConverters(ColorConverters::class, RssbTypeConverters::class)
+@TypeConverters(RssbTypeConverters::class)
 abstract class PixelPlayDatabase : RoomDatabase() {
     abstract fun albumArtThemeDao(): AlbumArtThemeDao
     abstract fun searchHistoryDao(): SearchHistoryDao
