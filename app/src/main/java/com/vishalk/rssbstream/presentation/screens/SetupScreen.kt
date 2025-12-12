@@ -332,7 +332,7 @@ fun WelcomePage() {
             modifier = Modifier
                 .padding(horizontal = 8.dp)
                 .padding(top = 12.dp),
-            text = "Welcome to PixelPlay",
+            text = "Welcome to RSSB Stream",
             style = ExpTitleTypography.displayLarge.copy(
                 fontSize = 42.sp,
                 lineHeight = 1.1.em
@@ -421,7 +421,7 @@ fun MediaPermissionPage(uiState: SetupUiState) {
     PermissionPageLayout(
         title = "Media Permission",
         granted = isGranted,
-        description = "PixelPlay needs access to your audio files to build your music library.",
+        description = "RSSB Stream needs access to your audio files to build your music library.",
         buttonText = if (isGranted) "Permission Granted" else "Grant Media Permission",
         icons = mediaIcons,
         onGrantClicked = {
@@ -479,7 +479,7 @@ fun AllFilesPermissionPage(uiState: SetupUiState) {
     PermissionPageLayout(
         title = "All Files Access",
         granted = isGranted,
-        description = "For some Android versions, PixelPlay needs broader file access to find all your music.",
+        description = "For some Android versions, RSSB Stream needs broader file access to find all your music.",
         buttonText = if(isGranted) "Permission Granted" else "Go to Settings",
         icons = fileIcons,
         onGrantClicked = {

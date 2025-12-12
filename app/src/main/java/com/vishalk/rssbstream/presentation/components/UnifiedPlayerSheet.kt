@@ -68,7 +68,7 @@ import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.runtime.staticCompositionLocalOf
-import com.vishalk.rssbstream.ui.theme.LocalPixelPlayDarkTheme
+import com.vishalk.rssbstream.ui.theme.LocalRssbStreamDarkTheme
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -749,7 +749,7 @@ fun UnifiedPlayerSheet(
 
     // val currentAlbumColorSchemePair by playerViewModel.currentAlbumArtColorSchemePair.collectAsState() // Replaced by activePlayerColorSchemePair
     val activePlayerSchemePair by playerViewModel.activePlayerColorSchemePair.collectAsState()
-    val isDarkTheme = LocalPixelPlayDarkTheme.current
+    val isDarkTheme = LocalRssbStreamDarkTheme.current
     val systemColorScheme = MaterialTheme.colorScheme // This is the standard M3 theme
 
     val targetColorScheme = remember(activePlayerSchemePair, isDarkTheme, systemColorScheme) {

@@ -26,7 +26,7 @@ class GitHubContributorService @Inject constructor() {
      */
     suspend fun fetchContributors(
         owner: String = "theovilardo",
-        repo: String = "PixelPlay"
+        repo: String = "rssb-stream"
     ): Result<List<GitHubContributor>> {
         return withContext(Dispatchers.IO) {
             try {

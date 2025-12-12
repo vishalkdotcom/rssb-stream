@@ -88,7 +88,7 @@ class MusicService : MediaSessionService() {
     private var countedPlayListener: Player.Listener? = null
 
     companion object {
-        private const val TAG = "MusicService_PixelPlay"
+        private const val TAG = "MusicService_RssbStream"
         const val NOTIFICATION_ID = 101
     }
 

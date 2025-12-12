@@ -23,34 +23,34 @@ import com.vishalk.rssbstream.presentation.viewmodel.ColorSchemePair
 import androidx.core.graphics.ColorUtils
 import androidx.compose.ui.unit.dp
 
-val LocalPixelPlayDarkTheme = staticCompositionLocalOf { false }
+val LocalRssbStreamDarkTheme = staticCompositionLocalOf { false }
 
 val DarkColorScheme = darkColorScheme(
-    primary = PixelPlayPurplePrimary,
-    secondary = PixelPlayPink,
-    tertiary = PixelPlayOrange,
-    background = PixelPlayPurpleDark,
-    surface = PixelPlaySurface,
-    onPrimary = PixelPlayWhite,
-    onSecondary = PixelPlayWhite,
-    onTertiary = PixelPlayWhite,
-    onBackground = PixelPlayWhite,
-    onSurface = PixelPlayLightPurple, // Texto sobre superficies
+    primary = RssbStreamPurplePrimary,
+    secondary = RssbStreamPink,
+    tertiary = RssbStreamOrange,
+    background = RssbStreamPurpleDark,
+    surface = RssbStreamSurface,
+    onPrimary = RssbStreamWhite,
+    onSecondary = RssbStreamWhite,
+    onTertiary = RssbStreamWhite,
+    onBackground = RssbStreamWhite,
+    onSurface = RssbStreamLightPurple, // Texto sobre superficies
     error = Color(0xFFFF5252),
-    onError = PixelPlayWhite
+    onError = RssbStreamWhite
 )
 
 val LightColorScheme = lightColorScheme(
     primary = LightPrimary,
-    onPrimary = PixelPlayWhite,
+    onPrimary = RssbStreamWhite,
     primaryContainer = LightPrimaryContainer,
     onPrimaryContainer = LightOnPrimaryContainer,
-    secondary = PixelPlayPink,
-    onSecondary = PixelPlayWhite,
-    secondaryContainer = PixelPlayPink.copy(alpha = 0.15f),
-    onSecondaryContainer = PixelPlayPink.copy(alpha = 0.85f),
-    tertiary = PixelPlayOrange,
-    onTertiary = PixelPlayBlack,
+    secondary = RssbStreamPink,
+    onSecondary = RssbStreamWhite,
+    secondaryContainer = RssbStreamPink.copy(alpha = 0.15f),
+    onSecondaryContainer = RssbStreamPink.copy(alpha = 0.85f),
+    tertiary = RssbStreamOrange,
+    onTertiary = RssbStreamBlack,
     background = LightBackground,
     onBackground = LightOnSurface,
     surface = LightSurface,
@@ -61,11 +61,11 @@ val LightColorScheme = lightColorScheme(
     outlineVariant = LightOutline.copy(alpha = 0.6f),
     surfaceTint = LightPrimary,
     error = Color(0xFFD32F2F),
-    onError = PixelPlayWhite
+    onError = RssbStreamWhite
 )
 
 @Composable
-fun PixelPlayTheme(
+fun RssbStreamTheme(
     darkTheme: Boolean = isSystemInDarkTheme(),
     colorSchemePairOverride: ColorSchemePair? = null,
     content: @Composable () -> Unit
@@ -103,7 +103,7 @@ fun PixelPlayTheme(
         }
     }
 
-    CompositionLocalProvider(LocalPixelPlayDarkTheme provides darkTheme) {
+    CompositionLocalProvider(LocalRssbStreamDarkTheme provides darkTheme) {
         MaterialTheme(
             colorScheme = finalColorScheme,
             typography = Typography,

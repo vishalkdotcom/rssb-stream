@@ -51,7 +51,7 @@ import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import com.vishalk.rssbstream.ui.theme.LocalPixelPlayDarkTheme
+import com.vishalk.rssbstream.ui.theme.LocalRssbStreamDarkTheme
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.media3.common.util.UnstableApi
@@ -84,7 +84,7 @@ fun GenreDetailScreen(
     val playerSheetState by playerViewModel.sheetState.collectAsState()
     val stablePlayerState by playerViewModel.stablePlayerState.collectAsState()
 
-    val darkMode = LocalPixelPlayDarkTheme.current
+    val darkMode = LocalRssbStreamDarkTheme.current
 
     val scrollBehavior = TopAppBarDefaults.exitUntilCollapsedScrollBehavior(
         rememberTopAppBarState()

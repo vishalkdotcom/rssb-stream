@@ -14,7 +14,7 @@ import androidx.core.view.WindowCompat
 import dagger.hilt.android.AndroidEntryPoint
 import com.vishalk.rssbstream.presentation.viewmodel.PlayerViewModel
 import com.vishalk.rssbstream.presentation.components.external.ExternalPlayerOverlay
-import com.vishalk.rssbstream.ui.theme.PixelPlayTheme
+import com.vishalk.rssbstream.ui.theme.RssbStreamTheme
 import android.content.Intent.EXTRA_STREAM
 import androidx.media3.common.util.UnstableApi
 import com.vishalk.rssbstream.data.preferences.AppThemeMode
@@ -43,7 +43,7 @@ class ExternalPlayerActivity : ComponentActivity() {
                 AppThemeMode.LIGHT -> false
                 else -> systemDarkTheme
             }
-            PixelPlayTheme(darkTheme = useDarkTheme) {
+            RssbStreamTheme(darkTheme = useDarkTheme) {
                 ExternalPlayerOverlay(
                     playerViewModel = playerViewModel,
                     onDismiss = { finish() },

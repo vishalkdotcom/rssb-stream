@@ -39,7 +39,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.Velocity
 import androidx.compose.ui.unit.dp
-import com.vishalk.rssbstream.ui.theme.LocalPixelPlayDarkTheme
+import com.vishalk.rssbstream.ui.theme.LocalRssbStreamDarkTheme
 import androidx.compose.ui.unit.lerp
 import androidx.compose.ui.util.lerp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -392,7 +392,7 @@ private fun CustomCollapsingTopBar(
     onPlayClick: () -> Unit
 ) {
     val surfaceColor = MaterialTheme.colorScheme.surface
-    val statusBarColor = if (LocalPixelPlayDarkTheme.current) Color.Black.copy(alpha = 0.6f) else Color.White.copy(alpha = 0.4f)
+    val statusBarColor = if (LocalRssbStreamDarkTheme.current) Color.Black.copy(alpha = 0.6f) else Color.White.copy(alpha = 0.4f)
 
     // --- Animation Values ---
     val fabScale = 1f - collapseFraction

@@ -71,7 +71,7 @@ import com.vishalk.rssbstream.presentation.components.SmartImage
 import com.vishalk.rssbstream.presentation.components.SongInfoBottomSheet
 import com.vishalk.rssbstream.presentation.viewmodel.PlayerViewModel
 import android.util.Log
-import com.vishalk.rssbstream.ui.theme.LocalPixelPlayDarkTheme
+import com.vishalk.rssbstream.ui.theme.LocalRssbStreamDarkTheme
 import androidx.compose.material.icons.rounded.DeleteForever
 import androidx.compose.material.icons.rounded.PlaylistPlay
 import androidx.compose.material.icons.rounded.History
@@ -150,7 +150,7 @@ fun SearchScreen(
 
     val searchbarCornerRadius = 28.dp
 
-    val dm = LocalPixelPlayDarkTheme.current
+    val dm = LocalRssbStreamDarkTheme.current
 
     val gradientColorsDark = listOf(
         MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.5f),

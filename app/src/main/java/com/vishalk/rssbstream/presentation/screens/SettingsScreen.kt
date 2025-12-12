@@ -668,7 +668,7 @@ fun SettingsScreen(
                             .clip(shape = RoundedCornerShape(24.dp))
                     ) {
                         SettingsItem(
-                            title = "About Pixel Play",
+                            title = "About RSSB Stream",
                             subtitle = "App version, credits, and more.",
                             leadingIcon = {
                                 Icon(

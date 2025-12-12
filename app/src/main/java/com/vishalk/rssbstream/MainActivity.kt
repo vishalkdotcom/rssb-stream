@@ -101,7 +101,7 @@ import com.vishalk.rssbstream.presentation.navigation.Screen
 import com.vishalk.rssbstream.presentation.screens.SetupScreen
 import com.vishalk.rssbstream.presentation.viewmodel.MainViewModel
 import com.vishalk.rssbstream.presentation.viewmodel.PlayerViewModel
-import com.vishalk.rssbstream.ui.theme.PixelPlayTheme
+import com.vishalk.rssbstream.ui.theme.RssbStreamTheme
 import com.vishalk.rssbstream.utils.LogUtils
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.collections.immutable.persistentListOf
@@ -163,7 +163,7 @@ class MainActivity : ComponentActivity() {
                 }
             }
 
-            PixelPlayTheme(
+            RssbStreamTheme(
                 darkTheme = useDarkTheme
             ) {
                 Surface(modifier = Modifier.fillMaxSize(), color = MaterialTheme.colorScheme.background) {
@@ -632,7 +632,7 @@ class MainActivity : ComponentActivity() {
             )
             Spacer(modifier = Modifier.height(8.dp))
             Text(
-                text = "PixelPlay needs access to your audio files to scan and play your music. Please grant permission to continue.",
+                text = "RSSB Stream needs access to your audio files to scan and play your music. Please grant permission to continue.",
                 style = MaterialTheme.typography.bodyLarge,
                 textAlign = TextAlign.Center,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
