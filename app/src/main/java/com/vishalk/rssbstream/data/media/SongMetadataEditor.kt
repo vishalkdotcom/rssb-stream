@@ -1,0 +1,293 @@
+package com.vishalk.rssbstream.data.media
+
+import android.content.ContentUris
+import android.content.ContentValues
+import android.content.Context
+import android.media.MediaScannerConnection
+import android.os.ParcelFileDescriptor
+import android.provider.MediaStore
+import androidx.core.net.toUri
+import com.kyant.taglib.Picture
+import com.kyant.taglib.TagLib
+import com.vishalk.rssbstream.data.database.MusicDao
+import kotlinx.coroutines.runBlocking
+import timber.log.Timber
+import java.io.File
+import java.io.FileOutputStream
+
+class SongMetadataEditor(private val context: Context, private val musicDao: MusicDao) {
+
+    fun editSongMetadata(
+        songId: Long,
+        newTitle: String,
+        newArtist: String,
+        newAlbum: String,
+        newGenre: String,
+        newLyrics: String,
+        newTrackNumber: Int,
+        coverArtUpdate: CoverArtUpdate? = null,
+    ): SongMetadataEditResult {
+        return try {
+            // 1. FIRST: Update the actual file with ALL metadata using TagLib
+            val fileUpdateSuccess = updateFileMetadataWithTagLib(
+                songId = songId,
+                newTitle = newTitle,
+                newArtist = newArtist,
+                newAlbum = newAlbum,
+                newGenre = newGenre,
+                newLyrics = newLyrics,
+                newTrackNumber = newTrackNumber,
+                coverArtUpdate = coverArtUpdate
+            )
+
+            if (!fileUpdateSuccess) {
+                Timber.e("Failed to update file metadata for songId: $songId")
+                return SongMetadataEditResult(success = false, updatedAlbumArtUri = null)
+            }
+
+            // 2. SECOND: Update MediaStore to reflect the changes
+            val mediaStoreSuccess = updateMediaStoreMetadata(
+                songId = songId,
+                title = newTitle,
+                artist = newArtist,
+                album = newAlbum,
+                genre = newGenre,
+                trackNumber = newTrackNumber
+            )
+
+            if (!mediaStoreSuccess) {
+                Timber.w("MediaStore update failed, but file was updated for songId: $songId")
+                // Continue anyway since the file was updated
+            }
+
+            // 3. Update local database and save cover art preview
+            var storedCoverArtUri: String? = null
+            runBlocking {
+                musicDao.updateSongMetadata(
+                    songId, newTitle, newArtist, newAlbum, newGenre, newLyrics, newTrackNumber
+                )
+
+                coverArtUpdate?.let { update ->
+                    storedCoverArtUri = saveCoverArtPreview(songId, update)
+                    storedCoverArtUri?.let { coverUri ->
+                        musicDao.updateSongAlbumArt(songId, coverUri)
+                    }
+                }
+            }
+
+            // 4. Force media rescan
+            forceMediaRescan(songId)
+
+            Timber.d("Successfully updated metadata for songId: $songId")
+            SongMetadataEditResult(success = true, updatedAlbumArtUri = storedCoverArtUri)
+
+        } catch (e: Exception) {
+            Timber.e(e, "Failed to update metadata for songId: $songId")
+            SongMetadataEditResult(success = false, updatedAlbumArtUri = null)
+        }
+    }
+
+    private fun updateFileMetadataWithTagLib(
+        songId: Long,
+        newTitle: String,
+        newArtist: String,
+        newAlbum: String,
+        newGenre: String,
+        newLyrics: String,
+        newTrackNumber: Int,
+        coverArtUpdate: CoverArtUpdate? = null
+    ): Boolean {
+        return try {
+            val filePath = getFilePathFromMediaStore(songId)
+            if (filePath == null) {
+                Timber.e("Could not get file path for songId: $songId")
+                return false
+            }
+
+            val audioFile = File(filePath)
+            if (!audioFile.exists()) {
+                Timber.e("Audio file does not exist: $filePath")
+                return false
+            }
+
+            // Open file with read/write permissions
+            ParcelFileDescriptor.open(audioFile, ParcelFileDescriptor.MODE_READ_WRITE).use { fd ->
+                // Get existing metadata or create empty map
+                val existingMetadata = TagLib.getMetadata(fd.dup().detachFd())
+                val propertyMap = HashMap(existingMetadata?.propertyMap ?: emptyMap())
+
+                // Update metadata fields
+                propertyMap["TITLE"] = arrayOf(newTitle)
+                propertyMap["ARTIST"] = arrayOf(newArtist)
+                propertyMap["ALBUM"] = arrayOf(newAlbum)
+                propertyMap["GENRE"] = arrayOf(newGenre)
+                propertyMap["LYRICS"] = arrayOf(newLyrics)
+                propertyMap["TRACKNUMBER"] = arrayOf(newTrackNumber.toString())
+                propertyMap["ALBUMARTIST"] = arrayOf(newArtist)
+
+                // Save metadata
+                val metadataSaved = TagLib.savePropertyMap(fd.dup().detachFd(), propertyMap)
+                if (!metadataSaved) {
+                    Timber.e("Failed to save metadata for songId: $songId")
+                    return false
+                }
+
+                // Update cover art if provided
+                coverArtUpdate?.let { update ->
+                    val picture = Picture(
+                        data = update.bytes,
+                        description = "Front Cover",
+                        pictureType = "Front Cover",
+                        mimeType = update.mimeType
+                    )
+                    val coverSaved = TagLib.savePictures(fd.detachFd(), arrayOf(picture))
+                    if (!coverSaved) {
+                        Timber.w("Failed to save cover art, but metadata was saved for songId: $songId")
+                    } else {
+                        Timber.d("Successfully embedded cover art for songId: $songId")
+                    }
+                }
+            }
+
+            Timber.d("Successfully updated file metadata: ${audioFile.path}")
+            true
+
+        } catch (e: Exception) {
+            Timber.e(e, "Error updating file metadata for songId: $songId")
+            false
+        }
+    }
+
+    private fun updateMediaStoreMetadata(
+        songId: Long,
+        title: String,
+        artist: String,
+        album: String,
+        genre: String,
+        trackNumber: Int
+    ): Boolean {
+        return try {
+            val uri = ContentUris.withAppendedId(MediaStore.Audio.Media.EXTERNAL_CONTENT_URI, songId)
+
+            val values = ContentValues().apply {
+                put(MediaStore.Audio.Media.TITLE, title)
+                put(MediaStore.Audio.Media.ARTIST, artist)
+                put(MediaStore.Audio.Media.ALBUM, album)
+                put(MediaStore.Audio.Media.GENRE, genre)
+                put(MediaStore.Audio.Media.TRACK, trackNumber)
+                put(MediaStore.Audio.Media.DISPLAY_NAME, title)
+                put(MediaStore.Audio.Media.DATE_MODIFIED, System.currentTimeMillis() / 1000)
+                put(MediaStore.Audio.Media.ALBUM_ARTIST, artist)
+            }
+
+            val rowsUpdated = context.contentResolver.update(uri, values, null, null)
+            val success = rowsUpdated > 0
+
+            Timber.d("MediaStore update: $rowsUpdated row(s) affected")
+            success
+
+        } catch (e: Exception) {
+            Timber.e(e, "Failed to update MediaStore for songId: $songId")
+            false
+        }
+    }
+
+    private fun forceMediaRescan(songId: Long) {
+        try {
+            val filePath = getFilePathFromMediaStore(songId)
+            if (filePath != null && File(filePath).exists()) {
+                // Use MediaScannerConnection to force rescan
+                MediaScannerConnection.scanFile(
+                    context,
+                    arrayOf(filePath),
+                    null
+                ) { path, uri ->
+                    Timber.d("Media scan completed for: $path")
+                }
+                Timber.d("Triggered media scan for songId: $songId")
+            }
+        } catch (e: Exception) {
+            Timber.e(e, "Failed to force media rescan for songId: $songId")
+        }
+    }
+
+    private fun getFilePathFromMediaStore(songId: Long): String? {
+        return context.contentResolver.query(
+            MediaStore.Audio.Media.EXTERNAL_CONTENT_URI,
+            arrayOf(MediaStore.Audio.Media.DATA),
+            "${MediaStore.Audio.Media._ID} = ?",
+            arrayOf(songId.toString()),
+            null
+        )?.use { cursor ->
+            if (cursor.moveToFirst()) {
+                cursor.getString(cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.DATA))
+            } else {
+                Timber.e("No file found for songId: $songId")
+                null
+            }
+        }
+    }
+    private fun saveCoverArtPreview(songId: Long, coverArtUpdate: CoverArtUpdate): String? {
+        return try {
+            val extension = imageExtensionFromMimeType(coverArtUpdate.mimeType) ?: "jpg"
+            val directory = File(context.cacheDir, "").apply {
+                if (!exists()) mkdirs()
+            }
+
+            // Clean up old cover art files for this song
+            directory.listFiles { file ->
+                file.name.startsWith("song_art_${songId}")
+            }?.forEach { it.delete() }
+
+            // Save new cover art
+            val file = File(directory, "song_art_${songId}_${System.currentTimeMillis()}.$extension")
+            FileOutputStream(file).use { outputStream ->
+                outputStream.write(coverArtUpdate.bytes)
+            }
+
+            file.toUri().toString()
+        } catch (e: Exception) {
+            Timber.e(e, "Error saving cover art preview for songId: $songId")
+            null
+        }
+    }
+
+    private fun imageExtensionFromMimeType(mimeType: String): String? {
+        return when (mimeType) {
+            "image/jpeg", "image/jpg" -> "jpg"
+            "image/png" -> "png"
+            "image/webp" -> "webp"
+            "image/gif" -> "gif"
+            else -> null
+        }
+    }
+}
+
+// Data classes
+data class SongMetadataEditResult(
+    val success: Boolean,
+    val updatedAlbumArtUri: String?,
+)
+
+data class CoverArtUpdate(
+    val bytes: ByteArray,
+    val mimeType: String = "image/jpeg"
+) {
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (javaClass != other?.javaClass) return false
+
+        other as CoverArtUpdate
+
+        if (!bytes.contentEquals(other.bytes)) return false
+        if (mimeType != other.mimeType) return false
+
+        return true
+    }
+
+    override fun hashCode(): Int {
+        var result = bytes.contentHashCode()
+        result = 31 * result + mimeType.hashCode()
+        return result
+    }
+}

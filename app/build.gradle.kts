@@ -9,7 +9,7 @@ plugins {
 }
 
 android {
-    namespace = "com.personal.rssbstream"
+    namespace = "com.vishalk.rssbstream"
     compileSdk = 35
 
     androidResources {
@@ -25,7 +25,7 @@ android {
     }
 
     defaultConfig {
-        applicationId = "com.personal.rssbstream"
+        applicationId = "com.vishalk.rssbstream"
         minSdk = 29
         targetSdk = 35
         versionCode = (project.findProperty("APP_VERSION_CODE") as String).toInt()
