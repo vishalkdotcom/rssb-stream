@@ -8,7 +8,7 @@ import os
 import json
 import requests
 from bs4 import BeautifulSoup
-from urllib.parse import urljoin, quote
+from urllib.parse import urljoin, quote, unquote
 import time
 import argparse
 import sys
@@ -16,6 +16,11 @@ from tqdm import tqdm
 
 BASE_URL = "https://rssb.org"
 OUTPUT_DIR = "./downloads"
+
+def get_clean_filename(url):
+    """Extracts filename from URL, stripping query params and fragments."""
+    path = url.split('/')[-1]
+    return unquote(path.split('#')[0].split('?')[0])
 
 class ScraperStats:
     def __init__(self):
@@ -150,7 +155,7 @@ def scrape_audiobooks(limit, dry_run, max_size):
             file_url = urljoin(BASE_URL, file_rel_path)
 
             book_id = book_url.split('/')[-1].replace('.html', '').replace('audio-', '')
-            filename = file_rel_path.split('/')[-1]
+            filename = get_clean_filename(file_rel_path)
             local_path = os.path.join(OUTPUT_DIR, "audio", "audiobooks", book_id, filename)
 
             download_file(file_url, local_path, dry_run, max_size)
@@ -227,8 +232,8 @@ def scrape_shabads(limit, dry_run, max_size):
         href = link['href']
         file_url = urljoin(BASE_URL, href)
 
-        filename = href.split('/')[-1]
-        decoded_filename = requests.utils.unquote(filename)
+        filename = get_clean_filename(href)
+        decoded_filename = filename
 
         name_part = decoded_filename.rsplit('.', 1)[0]
         if ' - ' in name_part:
@@ -272,7 +277,7 @@ def scrape_discourses(limit, dry_run, max_size):
         file_rel_path = link['data-url']
         file_url = urljoin(BASE_URL, file_rel_path)
 
-        filename = file_rel_path.split('/')[-1]
+        filename = get_clean_filename(file_rel_path)
 
         raw_title = link.text.strip()
         if '. ' in raw_title:
