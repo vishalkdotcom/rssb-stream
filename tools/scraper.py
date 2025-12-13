@@ -7,6 +7,7 @@ Downloads audio content and generates catalog JSON files.
 import os
 import json
 import requests
+import re
 from bs4 import BeautifulSoup
 from urllib.parse import urljoin, quote, unquote
 import time
@@ -21,6 +22,24 @@ def get_clean_filename(url):
     """Extracts filename from URL, stripping query params and fragments."""
     path = url.split('/')[-1]
     return unquote(path.split('#')[0].split('?')[0])
+
+def parse_time_fragment(url):
+    """Parses time fragment like #t=1:04:51 into seconds."""
+    if '#t=' not in url:
+        return 0
+
+    time_str = url.split('#t=')[1].split('?')[0]  # Handle potential query params after fragment? unlikely but safe
+    parts = time_str.split(':')
+
+    seconds = 0
+    if len(parts) == 3: # HH:MM:SS
+        seconds = int(parts[0]) * 3600 + int(parts[1]) * 60 + int(float(parts[2]))
+    elif len(parts) == 2: # MM:SS
+        seconds = int(parts[0]) * 60 + int(float(parts[1]))
+    elif len(parts) == 1: # SS
+        seconds = int(float(parts[0]))
+
+    return seconds
 
 class ScraperStats:
     def __init__(self):
@@ -147,32 +166,71 @@ def scrape_audiobooks(limit, dry_run, max_size):
 
         chapters = []
         chapter_links = book_soup.select('a[data-url]')
+        book_id = book_url.split('/')[-1].replace('.html', '').replace('audio-', '')
 
+        # First pass: collect basic info and download
+        temp_chapters = []
         for i, link in enumerate(chapter_links):
             file_rel_path = link['data-url']
             chapter_title = link.text.strip() or f"Chapter {i+1}"
 
             file_url = urljoin(BASE_URL, file_rel_path)
+            clean_filename = get_clean_filename(file_rel_path)
+            local_path = os.path.join(OUTPUT_DIR, "audio", "audiobooks", book_id, clean_filename)
 
-            book_id = book_url.split('/')[-1].replace('.html', '').replace('audio-', '')
-            filename = get_clean_filename(file_rel_path)
-            local_path = os.path.join(OUTPUT_DIR, "audio", "audiobooks", book_id, filename)
+            # Extract start time from the original relative path (which contains the fragment)
+            start_time = parse_time_fragment(file_rel_path)
 
             download_file(file_url, local_path, dry_run, max_size)
 
-            chapters.append({
+            temp_chapters.append({
                 "id": f"{book_id}-{i+1:02d}",
                 "title": chapter_title,
                 "trackNumber": i + 1,
-                "streamUrl": f"audio/audiobooks/{book_id}/{filename}"
+                "streamUrl": f"audio/audiobooks/{book_id}/{clean_filename}",
+                "startTime": start_time,
+                "filename": clean_filename # Store filename to group by file later
             })
+
+        # Second pass: calculate end times
+        # Group by filename to handle multi-file audiobooks correctly
+        # (Though most seem to be single-file, this is safer)
+        chapters_by_file = {}
+        for ch in temp_chapters:
+            fname = ch['filename']
+            if fname not in chapters_by_file:
+                chapters_by_file[fname] = []
+            chapters_by_file[fname].append(ch)
+
+        final_chapters = []
+        for fname, file_chapters in chapters_by_file.items():
+            # Sort by track number (should be already sorted by HTML order, but good to be safe)
+            file_chapters.sort(key=lambda x: x['trackNumber'])
+
+            for i in range(len(file_chapters)):
+                current_chap = file_chapters[i]
+                next_chap = file_chapters[i+1] if i + 1 < len(file_chapters) else None
+
+                # If there is a next chapter in the same file, its start time is this chapter's end time
+                if next_chap:
+                    current_chap['endTime'] = next_chap['startTime']
+                else:
+                    # Last chapter in the file (or single chapter)
+                    current_chap['endTime'] = None
+
+                # Remove internal helper key
+                del current_chap['filename']
+                final_chapters.append(current_chap)
+
+        # Sort all chapters back by track number
+        final_chapters.sort(key=lambda x: x['trackNumber'])
 
         audiobooks.append({
             "id": book_id,
             "title": title,
             "type": "AUDIOBOOK",
             "sourceUrl": book_url,
-            "chapters": chapters
+            "chapters": final_chapters
         })
 
         # time.sleep(0.5) # Removed to speed up execution, tqdm handles pacing well enough visually

@@ -24,7 +24,9 @@ data class ChapterItem(
     val trackNumber: Int,
     val duration: Long, // seconds
     @SerializedName("streamUrl")
-    val streamPath: String
+    val streamPath: String,
+    val startTime: Long = 0,
+    val endTime: Long? = null
 )
 
 /**
@@ -83,7 +85,9 @@ fun AudiobookCatalogItem.toRssbContents(): List<RssbContent> {
             duration = chapter.duration,
             streamPath = chapter.streamPath,
             parentId = id,
-            trackNumber = chapter.trackNumber
+            trackNumber = chapter.trackNumber,
+            startTime = chapter.startTime,
+            endTime = chapter.endTime
         )
     }
 }

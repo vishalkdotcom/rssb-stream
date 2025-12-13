@@ -57,7 +57,13 @@ data class RssbContent(
     val playbackPosition: Long = 0,
     
     /** Whether this item is marked as favorite */
-    val isFavorite: Boolean = false
+    val isFavorite: Boolean = false,
+
+    /** Start time in seconds for chapter markers */
+    val startTime: Long = 0,
+
+    /** End time in seconds for chapter markers (null means end of file) */
+    val endTime: Long? = null
 ) {
     companion object {
         fun empty(): RssbContent = RssbContent(
