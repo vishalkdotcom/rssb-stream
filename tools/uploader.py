@@ -20,9 +20,10 @@ def setup_args():
     parser.add_argument("--bucket", default="rssb-stream", help="R2 Bucket name")
     parser.add_argument("--dry-run", action="store_true", default=True, help="Dry run (default)")
     parser.add_argument("--no-dry-run", action="store_false", dest="dry_run", help="Execute real upload")
+    parser.add_argument("--no-ssl-verify", action="store_true", help="Disable SSL verification (insecure, for testing)")
     return parser.parse_args()
 
-def get_s3_client():
+def get_s3_client(verify_ssl=True):
     endpoint_url = os.getenv("R2_ENDPOINT_URL")
     access_key = os.getenv("R2_ACCESS_KEY_ID")
     secret_key = os.getenv("R2_SECRET_ACCESS_KEY")
@@ -31,11 +32,16 @@ def get_s3_client():
         print("Error: Missing R2 credentials. Please set R2_ENDPOINT_URL, R2_ACCESS_KEY_ID, and R2_SECRET_ACCESS_KEY.")
         return None
 
+    if not verify_ssl:
+        import urllib3
+        urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
+
     return boto3.client(
         's3',
         endpoint_url=endpoint_url,
         aws_access_key_id=access_key,
-        aws_secret_access_key=secret_key
+        aws_secret_access_key=secret_key,
+        verify=verify_ssl
     )
 
 def upload_file(s3, bucket, local_path, s3_key, dry_run):
@@ -93,7 +99,7 @@ def main():
 
     s3 = None
     if not args.dry_run:
-        s3 = get_s3_client()
+        s3 = get_s3_client(verify_ssl=not args.no_ssl_verify)
         if not s3:
             return
     else:

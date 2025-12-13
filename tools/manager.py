@@ -17,6 +17,7 @@ def setup_args():
     parser.add_argument("--dry-run", action="store_true", default=False, help="Dry run mode for both scraper and uploader")
     parser.add_argument("--only-scrape", action="store_true", help="Run only the scraper")
     parser.add_argument("--only-upload", action="store_true", help="Run only the uploader")
+    parser.add_argument("--no-ssl-verify", action="store_true", help="Disable SSL verification for uploader")
     return parser.parse_args()
 
 def run_script(script_name, args):
@@ -60,6 +61,9 @@ def main():
             uploader_args.append("--dry-run")
         else:
             uploader_args.append("--no-dry-run")
+
+        if args.no_ssl_verify:
+            uploader_args.append("--no-ssl-verify")
 
         run_script(uploader_script, uploader_args)
 
