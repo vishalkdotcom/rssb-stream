@@ -2787,11 +2787,24 @@ class PlayerViewModel @Inject constructor(
                             metadataBuilder.setArtworkUri(uri)
                         }
                         val metadata = metadataBuilder.build()
-                        MediaItem.Builder()
+                        val mediaItemBuilder = MediaItem.Builder()
                             .setMediaId(song.id)
                             .setUri(song.contentUriString.toUri())
                             .setMediaMetadata(metadata)
-                            .build()
+
+                        // Handle start/end times for chapters sharing a file
+                        if (song.startTime > 0 || song.endTime != null) {
+                            val clippingConfig = MediaItem.ClippingConfiguration.Builder()
+                                .setStartPositionMs(song.startTime * 1000)
+
+                            if (song.endTime != null) {
+                                clippingConfig.setEndPositionMs(song.endTime * 1000)
+                            }
+
+                            mediaItemBuilder.setClippingConfiguration(clippingConfig.build())
+                        }
+
+                        mediaItemBuilder.build()
                     }
                     val startIndex = songsToPlay.indexOf(startSong).coerceAtLeast(0)
 
@@ -2824,11 +2837,23 @@ class PlayerViewModel @Inject constructor(
             return
         }
 
-        val mediaItem = MediaItem.Builder()
+        val mediaItemBuilder = MediaItem.Builder()
             .setMediaId(song.id)
             .setUri(song.contentUriString.toUri())
             .setMediaMetadata(buildMediaMetadataForSong(song))
-            .build()
+
+        if (song.startTime > 0 || song.endTime != null) {
+            val clippingConfig = MediaItem.ClippingConfiguration.Builder()
+                .setStartPositionMs(song.startTime * 1000)
+
+            if (song.endTime != null) {
+                clippingConfig.setEndPositionMs(song.endTime * 1000)
+            }
+
+            mediaItemBuilder.setClippingConfiguration(clippingConfig.build())
+        }
+
+        val mediaItem = mediaItemBuilder.build()
         if (controller.currentMediaItem?.mediaId == song.id) {
             if (!controller.isPlaying) controller.play()
         } else {
