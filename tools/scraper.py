@@ -12,9 +12,26 @@ from urllib.parse import urljoin, quote
 import time
 import argparse
 import sys
+from tqdm import tqdm
 
 BASE_URL = "https://rssb.org"
 OUTPUT_DIR = "./downloads"
+
+class ScraperStats:
+    def __init__(self):
+        self.total = 0
+        self.downloaded = 0
+        self.skipped = 0
+        self.failed = 0
+
+    def __str__(self):
+        return (f"Scraper Summary:\n"
+                f"  Total Files Processed: {self.total}\n"
+                f"  Downloaded: {self.downloaded}\n"
+                f"  Skipped (Existed): {self.skipped}\n"
+                f"  Failed: {self.failed}")
+
+stats = ScraperStats()
 
 def setup_args():
     parser = argparse.ArgumentParser(description="Scrape RSSB audio content")
@@ -25,50 +42,74 @@ def setup_args():
     return parser.parse_args()
 
 def download_file(url, output_path, dry_run=False, max_size=0):
-    """Download a file with progress."""
+    """Download a file with progress and retries."""
+    stats.total += 1
+
     if dry_run:
-        print(f"  [Dry Run] Would download: {url} -> {output_path}")
+        tqdm.write(f"  [Dry Run] Would download: {url} -> {output_path}")
+        stats.downloaded += 1 # Count as downloaded in dry run
         return
 
     os.makedirs(os.path.dirname(output_path), exist_ok=True)
 
     if os.path.exists(output_path):
-        print(f"  Skipping (exists): {output_path}")
+        stats.skipped += 1
         return
 
-    print(f"  Downloading: {url}")
     temp_path = output_path + ".part"
-    try:
-        resp = requests.get(url, stream=True)
-        resp.raise_for_status()
+    retries = 3
+    attempt = 0
 
-        with open(temp_path, 'wb') as f:
-            downloaded = 0
-            for chunk in resp.iter_content(chunk_size=8192):
-                f.write(chunk)
-                downloaded += len(chunk)
-                if max_size > 0 and downloaded >= max_size:
-                    print(f"  [Limit] Stopped after {downloaded} bytes.")
-                    break
+    while attempt < retries:
+        try:
+            resp = requests.get(url, stream=True, timeout=30)
+            resp.raise_for_status()
+            total_size = int(resp.headers.get('content-length', 0))
 
-        # Rename temp file to final filename on success
-        os.rename(temp_path, output_path)
-    except Exception as e:
-        print(f"  Error downloading {url}: {e}")
-        if os.path.exists(temp_path):
-            os.remove(temp_path)
+            with open(temp_path, 'wb') as f, tqdm(
+                desc=os.path.basename(output_path),
+                total=total_size,
+                unit='B',
+                unit_scale=True,
+                unit_divisor=1024,
+                leave=False
+            ) as bar:
+                downloaded = 0
+                for chunk in resp.iter_content(chunk_size=8192):
+                    f.write(chunk)
+                    bar.update(len(chunk))
+                    downloaded += len(chunk)
+                    if max_size > 0 and downloaded >= max_size:
+                        bar.write(f"  [Limit] Stopped after {downloaded} bytes.")
+                        break
+
+            # Rename temp file to final filename on success
+            os.rename(temp_path, output_path)
+            stats.downloaded += 1
+            return # Success
+
+        except Exception as e:
+            attempt += 1
+            tqdm.write(f"  Error downloading {url} (Attempt {attempt}/{retries}): {e}")
+            if os.path.exists(temp_path):
+                os.remove(temp_path)
+
+            if attempt < retries:
+                time.sleep(5)
+            else:
+                tqdm.write(f"  Failed to download {url} after {retries} attempts.")
+                stats.failed += 1
 
 def get_soup(url):
     """Helper to get BeautifulSoup object."""
-    print(f"Fetching {url}...")
     try:
-        resp = requests.get(url)
+        resp = requests.get(url, timeout=30)
         resp.raise_for_status()
         # Force UTF-8 encoding if not correctly detected
         resp.encoding = 'utf-8'
         return BeautifulSoup(resp.text, 'html.parser')
     except Exception as e:
-        print(f"Error fetching {url}: {e}")
+        tqdm.write(f"Error fetching {url}: {e}")
         return None
 
 def scrape_audiobooks(limit, dry_run, max_size):
@@ -92,18 +133,15 @@ def scrape_audiobooks(limit, dry_run, max_size):
     if limit > 0:
         book_links = book_links[:limit]
 
-    print(f"Found {len(book_links)} audiobooks to process.")
+    tqdm.write(f"Found {len(book_links)} audiobooks to process.")
 
-    for title, book_url in book_links:
-        print(f"Processing Book: {title}")
+    # Use tqdm for the batch progress
+    for title, book_url in tqdm(book_links, desc="Audiobooks", unit="book"):
         book_soup = get_soup(book_url)
         if not book_soup: continue
 
         chapters = []
         chapter_links = book_soup.select('a[data-url]')
-
-        # If limiting, maybe limit chapters too? But usually limit applies to items (books).
-        # We will download all chapters of the limited books.
 
         for i, link in enumerate(chapter_links):
             file_rel_path = link['data-url']
@@ -132,7 +170,7 @@ def scrape_audiobooks(limit, dry_run, max_size):
             "chapters": chapters
         })
 
-        time.sleep(0.5)
+        # time.sleep(0.5) # Removed to speed up execution, tqdm handles pacing well enough visually
 
     return audiobooks
 
@@ -148,9 +186,9 @@ def scrape_qna(limit, dry_run, max_size):
     if limit > 0:
         links = links[:limit]
 
-    print(f"Found {len(links)} Q&A sessions to process.")
+    tqdm.write(f"Found {len(links)} Q&A sessions to process.")
 
-    for i, link in enumerate(links):
+    for i, link in enumerate(tqdm(links, desc="Q&A Sessions", unit="session")):
         file_rel_path = link['data-url']
         file_url = urljoin(BASE_URL, file_rel_path)
 
@@ -183,9 +221,9 @@ def scrape_shabads(limit, dry_run, max_size):
     if limit > 0:
         mp3_links = mp3_links[:limit]
 
-    print(f"Found {len(mp3_links)} shabads to process.")
+    tqdm.write(f"Found {len(mp3_links)} shabads to process.")
 
-    for link in mp3_links:
+    for link in tqdm(mp3_links, desc="Shabads", unit="track"):
         href = link['href']
         file_url = urljoin(BASE_URL, href)
 
@@ -228,9 +266,9 @@ def scrape_discourses(limit, dry_run, max_size):
     if limit > 0:
         links = links[:limit]
 
-    print(f"Found {len(links)} discourses to process.")
+    tqdm.write(f"Found {len(links)} discourses to process.")
 
-    for i, link in enumerate(links):
+    for i, link in enumerate(tqdm(links, desc="Discourses", unit="track")):
         file_rel_path = link['data-url']
         file_url = urljoin(BASE_URL, file_rel_path)
 
@@ -263,7 +301,7 @@ def generate_catalog(content, output_file):
     with open(output_file, 'w', encoding='utf-8') as f:
         json.dump(content, f, indent=2, ensure_ascii=False)
 
-    print(f"Generated catalog: {output_file}")
+    tqdm.write(f"Generated catalog: {output_file}")
 
 def main():
     args = setup_args()
@@ -271,26 +309,27 @@ def main():
     os.makedirs(OUTPUT_DIR, exist_ok=True)
 
     # Audiobooks
-    print("\n=== Scraping Audiobooks ===")
+    tqdm.write("\n=== Scraping Audiobooks ===")
     audiobooks = scrape_audiobooks(args.limit, args.dry_run, args.max_size)
     generate_catalog(audiobooks, f"{OUTPUT_DIR}/catalog/audiobooks.json")
 
     # Q&A
-    print("\n=== Scraping Q&A ===")
+    tqdm.write("\n=== Scraping Q&A ===")
     qna = scrape_qna(args.limit, args.dry_run, args.max_size)
     generate_catalog(qna, f"{OUTPUT_DIR}/catalog/qna.json")
 
     # Shabads
-    print("\n=== Scraping Shabads ===")
+    tqdm.write("\n=== Scraping Shabads ===")
     shabads = scrape_shabads(args.limit, args.dry_run, args.max_size)
     generate_catalog(shabads, f"{OUTPUT_DIR}/catalog/shabads.json")
 
     # Discourses
-    print("\n=== Scraping Discourses ===")
+    tqdm.write("\n=== Scraping Discourses ===")
     discourses = scrape_discourses(args.limit, args.dry_run, args.max_size)
     generate_catalog(discourses, f"{OUTPUT_DIR}/catalog/discourses.json")
 
-    print("\n=== Done! ===")
+    tqdm.write("\n=== Done! ===")
+    print(stats)
 
 if __name__ == "__main__":
     main()
