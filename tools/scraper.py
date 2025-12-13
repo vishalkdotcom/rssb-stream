@@ -37,11 +37,12 @@ def download_file(url, output_path, dry_run=False, max_size=0):
         return
 
     print(f"  Downloading: {url}")
+    temp_path = output_path + ".part"
     try:
         resp = requests.get(url, stream=True)
         resp.raise_for_status()
 
-        with open(output_path, 'wb') as f:
+        with open(temp_path, 'wb') as f:
             downloaded = 0
             for chunk in resp.iter_content(chunk_size=8192):
                 f.write(chunk)
@@ -49,8 +50,13 @@ def download_file(url, output_path, dry_run=False, max_size=0):
                 if max_size > 0 and downloaded >= max_size:
                     print(f"  [Limit] Stopped after {downloaded} bytes.")
                     break
+
+        # Rename temp file to final filename on success
+        os.rename(temp_path, output_path)
     except Exception as e:
         print(f"  Error downloading {url}: {e}")
+        if os.path.exists(temp_path):
+            os.remove(temp_path)
 
 def get_soup(url):
     """Helper to get BeautifulSoup object."""
