@@ -49,8 +49,10 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
+import android.widget.Toast
 import android.os.Trace // Import Trace
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.asPaddingValues
@@ -107,6 +109,7 @@ fun DailyMixScreen(
     val aiError by playerViewModel.aiError.collectAsState()
     val lazyListState = rememberLazyListState()
 
+    val context = LocalContext.current
     var showSongInfoSheet by remember { mutableStateOf(false) }
     var selectedSongForInfo by remember { mutableStateOf<Song?>(null) }
     var showDailyMixMenu by remember { mutableStateOf(false) }
@@ -184,8 +187,18 @@ fun DailyMixScreen(
                 showSongInfoSheet = false
             },
             onNavigateToArtist = {
-                // TODO: Implement navigation to artist screen. Might require finding artist by name.
-                showSongInfoSheet = false
+                val artistId = if (song.artistId != -1L) {
+                    song.artistId
+                } else {
+                    playerViewModel.playerUiState.value.artists.find { it.name.equals(song.artist, ignoreCase = true) }?.id ?: -1L
+                }
+
+                if (artistId != -1L) {
+                    navController.navigate(Screen.ArtistDetail.createRoute(artistId))
+                    showSongInfoSheet = false
+                } else {
+                    Toast.makeText(context, "Artist not found in library", Toast.LENGTH_SHORT).show()
+                }
             },
             onEditSong = { newTitle, newArtist, newAlbum, newGenre, newLyrics, newTrackNumber, coverArtUpdate ->
                 playerViewModel.editSongMetadata(song, newTitle, newArtist, newAlbum, newGenre, newLyrics, newTrackNumber, coverArtUpdate)
