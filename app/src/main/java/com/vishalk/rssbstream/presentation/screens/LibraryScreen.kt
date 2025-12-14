@@ -39,6 +39,7 @@ import androidx.compose.material.icons.filled.Album
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.FavoriteBorder
 import androidx.compose.material.icons.rounded.MoreVert
+import androidx.compose.material.icons.rounded.Person
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -274,19 +275,21 @@ fun LibraryScreen(
                             contentDescription = "Ajustes"
                         )
                     }
-//                    FilledTonalIconButton(
-//                        modifier = Modifier.padding(end = 14.dp),
-//                        onClick = { /* TODO: User profile action */ },
-//                        colors = IconButtonDefaults.filledTonalIconButtonColors(
-//                            containerColor = MaterialTheme.colorScheme.onPrimary.copy(alpha = 0.8f),
-//                        )
-//                    ) {
-//                        Icon(
-//                            imageVector = Icons.Rounded.Person,
-//                            contentDescription = "User Profile",
-//                            tint = MaterialTheme.colorScheme.primary
-//                        )
-//                    }
+                    FilledTonalIconButton(
+                        modifier = Modifier.padding(end = 14.dp),
+                        onClick = {
+                            navController.navigate(Screen.Stats.route)
+                        },
+                        colors = IconButtonDefaults.filledTonalIconButtonColors(
+                            containerColor = MaterialTheme.colorScheme.onPrimary.copy(alpha = 0.8f),
+                        )
+                    ) {
+                        Icon(
+                            imageVector = Icons.Rounded.Person,
+                            contentDescription = "User Profile",
+                            tint = MaterialTheme.colorScheme.primary
+                        )
+                    }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
                     containerColor = gradientColors[0]
