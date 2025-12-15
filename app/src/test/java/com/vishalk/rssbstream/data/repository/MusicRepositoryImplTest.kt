@@ -4,6 +4,7 @@ import android.content.Context
 import android.net.Uri
 import com.vishalk.rssbstream.data.database.MusicDao
 import com.vishalk.rssbstream.data.database.SearchHistoryDao
+import com.vishalk.rssbstream.data.database.SearchHistoryEntity
 import com.vishalk.rssbstream.data.database.SongEntity // Necesario para datos de prueba
 import com.vishalk.rssbstream.data.database.AlbumEntity
 import com.vishalk.rssbstream.data.database.ArtistEntity
@@ -365,6 +366,43 @@ class MusicRepositoryImplTest {
                 mockSearchHistoryDao.deleteByQuery(query)
                 mockSearchHistoryDao.insert(any())
             }
+        }
+
+        @Test
+        fun `getRecentSearchHistory calls dao and maps results`() = runTest {
+            val limit = 10
+            val entities = listOf(
+                SearchHistoryEntity(1L, "query1", 1000L),
+                SearchHistoryEntity(2L, "query2", 2000L)
+            )
+            coEvery { mockSearchHistoryDao.getRecentSearches(limit) } returns entities
+
+            val result = musicRepository.getRecentSearchHistory(limit)
+
+            coVerify { mockSearchHistoryDao.getRecentSearches(limit) }
+            assertThat(result).hasSize(2)
+            assertThat(result[0].query).isEqualTo("query1")
+            assertThat(result[0].timestamp).isEqualTo(1000L)
+            assertThat(result[1].query).isEqualTo("query2")
+        }
+
+        @Test
+        fun `deleteSearchHistoryItemByQuery calls dao deleteByQuery`() = runTest {
+            val query = "query to delete"
+            coEvery { mockSearchHistoryDao.deleteByQuery(query) } just runs
+
+            musicRepository.deleteSearchHistoryItemByQuery(query)
+
+            coVerify { mockSearchHistoryDao.deleteByQuery(query) }
+        }
+
+        @Test
+        fun `clearSearchHistory calls dao clearAll`() = runTest {
+            coEvery { mockSearchHistoryDao.clearAll() } just runs
+
+            musicRepository.clearSearchHistory()
+
+            coVerify { mockSearchHistoryDao.clearAll() }
         }
     }
 }
