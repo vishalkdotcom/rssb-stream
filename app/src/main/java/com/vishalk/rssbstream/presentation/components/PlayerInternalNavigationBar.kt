@@ -62,7 +62,7 @@ private fun PlayerInternalNavigationItemsRow(
         verticalAlignment = Alignment.CenterVertically
     ) {
         navItems.forEach { item ->
-            val isSelected = currentRoute == item.screen.route
+            val isSelected = currentRoute == item.rssbScreen.route
             val selectedColor = MaterialTheme.colorScheme.primary
             val unselectedColor = MaterialTheme.colorScheme.onSurfaceVariant
             val indicatorColorFromTheme = MaterialTheme.colorScheme.secondaryContainer
@@ -91,9 +91,9 @@ private fun PlayerInternalNavigationItemsRow(
             val labelLambda: @Composable () -> Unit = remember(item.label) {
                 { Text(item.label) }
             }
-            val onClickLambda = remember(navController, item.screen.route) {
+            val onClickLambda = remember(navController, item.rssbScreen.route) {
                 {
-                    navController.navigate(item.screen.route) {
+                    navController.navigate(item.rssbScreen.route) {
                         popUpTo(navController.graph.id) { inclusive = true; saveState = false }
                         launchSingleTop = true
                         restoreState = false

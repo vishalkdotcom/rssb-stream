@@ -22,8 +22,10 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.vishalk.rssbstream.data.model.Audiobook
 import com.vishalk.rssbstream.data.model.RssbContent
+import com.vishalk.rssbstream.data.model.toSong
 import com.vishalk.rssbstream.presentation.navigation.RssbScreen
 import com.vishalk.rssbstream.presentation.viewmodel.ContentViewModel
+import com.vishalk.rssbstream.presentation.viewmodel.PlayerViewModel
 
 /**
  * Audiobooks browse screen - grid of all audiobooks.
@@ -143,7 +145,8 @@ private fun AudiobookGridItem(
 @Composable
 fun QnaScreen(
     navController: NavController,
-    contentViewModel: ContentViewModel = hiltViewModel()
+    contentViewModel: ContentViewModel = hiltViewModel(),
+    playerViewModel: PlayerViewModel = hiltViewModel()
 ) {
     val sessions by contentViewModel.qnaSessions.collectAsState()
 
@@ -169,7 +172,13 @@ fun QnaScreen(
             items(sessions) { session ->
                 ContentListItem(
                     content = session,
-                    onClick = { /* Navigate to player */ }
+                    onClick = {
+                        playerViewModel.showAndPlaySong(
+                            session.toSong(),
+                            sessions.map { it.toSong() },
+                            "Q&A Sessions"
+                        )
+                    }
                 )
             }
         }
@@ -183,7 +192,8 @@ fun QnaScreen(
 @Composable
 fun ShabadsScreen(
     navController: NavController,
-    contentViewModel: ContentViewModel = hiltViewModel()
+    contentViewModel: ContentViewModel = hiltViewModel(),
+    playerViewModel: PlayerViewModel = hiltViewModel()
 ) {
     val shabads by contentViewModel.shabads.collectAsState()
     var searchQuery by remember { mutableStateOf("") }
@@ -234,7 +244,13 @@ fun ShabadsScreen(
                     ContentListItem(
                         content = shabad,
                         showAuthor = true,
-                        onClick = { /* Navigate to player */ }
+                        onClick = {
+                            playerViewModel.showAndPlaySong(
+                                shabad.toSong(),
+                                filteredShabads.map { it.toSong() },
+                                "Shabads"
+                            )
+                        }
                     )
                 }
             }
@@ -249,7 +265,8 @@ fun ShabadsScreen(
 @Composable
 fun DiscoursesScreen(
     navController: NavController,
-    contentViewModel: ContentViewModel = hiltViewModel()
+    contentViewModel: ContentViewModel = hiltViewModel(),
+    playerViewModel: PlayerViewModel = hiltViewModel()
 ) {
     val discourses by contentViewModel.discourses.collectAsState()
     var selectedTab by remember { mutableStateOf(0) }
@@ -306,7 +323,13 @@ fun DiscoursesScreen(
                     ContentListItem(
                         content = discourse,
                         showAuthor = true,
-                        onClick = { /* Navigate to player */ }
+                        onClick = {
+                            playerViewModel.showAndPlaySong(
+                                discourse.toSong(),
+                                filteredDiscourses.map { it.toSong() },
+                                "Discourses"
+                            )
+                        }
                     )
                 }
             }

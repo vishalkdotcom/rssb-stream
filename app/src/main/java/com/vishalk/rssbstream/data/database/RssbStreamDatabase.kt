@@ -17,7 +17,7 @@ import androidx.sqlite.db.SupportSQLiteDatabase
         TransitionRuleEntity::class,
         RssbContent::class // Added for RSSB streaming content
     ],
-    version = 10, // Incremented for RssbContent table
+    version = 11, // Incremented to fix schema mismatch
     exportSchema = false
 )
 @TypeConverters(RssbTypeConverters::class)

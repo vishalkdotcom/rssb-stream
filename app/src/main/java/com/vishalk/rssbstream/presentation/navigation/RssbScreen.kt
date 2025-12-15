@@ -1,35 +1,22 @@
 package com.vishalk.rssbstream.presentation.navigation
 
-import androidx.compose.runtime.Immutable
+import com.vishalk.rssbstream.data.model.ContentType
 
 /**
- * Navigation routes for RSSB content screens.
+ * Screen definitions for RSSB-specific navigation.
  */
-@Immutable
 sealed class RssbScreen(val route: String) {
     object RssbHome : RssbScreen("rssb_home")
+    object Search : RssbScreen("rssb_search")
+    object Library : RssbScreen("rssb_library")
     
-    object Audiobooks : RssbScreen("audiobooks")
+    object Audiobooks : RssbScreen("rssb_audiobooks")
+    object QnA : RssbScreen("rssb_qna")
+    object Shabads : RssbScreen("rssb_shabads")
+    object Discourses : RssbScreen("rssb_discourses")
     
-    object AudiobookDetail : RssbScreen("audiobook_detail/{audiobookId}") {
-        fun createRoute(audiobookId: String) = "audiobook_detail/$audiobookId"
+    // Detail routes
+    object AudiobookDetail : RssbScreen("rssb_audiobook/{id}") {
+        fun createRoute(id: String) = "rssb_audiobook/$id"
     }
-    
-    object QnA : RssbScreen("qna")
-    
-    object Shabads : RssbScreen("shabads")
-    
-    object Discourses : RssbScreen("discourses")
-    
-    object DiscoursesByLanguage : RssbScreen("discourses/{language}") {
-        fun createRoute(language: String) = "discourses/$language"
-    }
-    
-    object ContentPlayer : RssbScreen("content_player/{contentId}") {
-        fun createRoute(contentId: String) = "content_player/$contentId"
-    }
-    
-    object Downloads : RssbScreen("downloads")
-    
-    object Favorites : RssbScreen("favorites")
 }

@@ -3,52 +3,21 @@ package com.vishalk.rssbstream.presentation.navigation
 import android.annotation.SuppressLint
 import androidx.annotation.OptIn
 import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.lifecycle.viewModelScope
 import androidx.media3.common.util.UnstableApi
 import androidx.navigation.NavHostController
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
-import com.vishalk.rssbstream.data.preferences.CarouselStyle
-import com.vishalk.rssbstream.data.preferences.LaunchTab
 import com.vishalk.rssbstream.data.preferences.UserPreferencesRepository
-import com.vishalk.rssbstream.presentation.screens.AlbumDetailScreen
-import com.vishalk.rssbstream.presentation.screens.ArtistDetailScreen
-import com.vishalk.rssbstream.presentation.screens.DailyMixScreen
-import com.vishalk.rssbstream.presentation.screens.EditTransitionScreen
-import com.vishalk.rssbstream.presentation.screens.GenreDetailScreen
-import com.vishalk.rssbstream.presentation.screens.HomeScreen
-import com.vishalk.rssbstream.presentation.screens.LibraryScreen
-import com.vishalk.rssbstream.presentation.screens.MashupScreen
-import com.vishalk.rssbstream.presentation.screens.NavBarCornerRadiusScreen
-import com.vishalk.rssbstream.presentation.screens.PlaylistDetailScreen
-import com.vishalk.rssbstream.presentation.screens.AboutScreen
-import com.vishalk.rssbstream.presentation.screens.SearchScreen
-import com.vishalk.rssbstream.presentation.screens.StatsScreen
-import com.vishalk.rssbstream.presentation.screens.SettingsScreen
-import com.vishalk.rssbstream.presentation.screens.rssb.AudiobooksScreen
-import com.vishalk.rssbstream.presentation.screens.rssb.DiscoursesScreen
-import com.vishalk.rssbstream.presentation.screens.rssb.QnaScreen
-import com.vishalk.rssbstream.presentation.screens.rssb.RssbHomeScreen
-import com.vishalk.rssbstream.presentation.screens.rssb.ShabadsScreen
+import com.vishalk.rssbstream.presentation.screens.*
+import com.vishalk.rssbstream.presentation.screens.rssb.*
 import com.vishalk.rssbstream.presentation.viewmodel.PlayerViewModel
 import com.vishalk.rssbstream.presentation.viewmodel.PlaylistViewModel
-import kotlinx.coroutines.flow.SharingStarted
-import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.flow.stateIn
 
 @OptIn(UnstableApi::class)
 @SuppressLint("UnrememberedGetBackStackEntry")
@@ -59,21 +28,103 @@ fun AppNavigation(
     paddingValues: PaddingValues,
     userPreferencesRepository: UserPreferencesRepository
 ) {
-    var launchTab by remember { mutableStateOf(LaunchTab.HOME) }
-
-    // Collect the initial value once and never again
-    LaunchedEffect(Unit) {
-        userPreferencesRepository.launchTabFlow
-            .first() // Get only the first value
-            .let { tab ->
-                launchTab = tab
-            }
-    }
-
     NavHost(
         navController = navController,
-        startDestination = launchTab
+        startDestination = RssbScreen.RssbHome.route
     ) {
+        // ===== RSSB Content Screens (Primary) =====
+
+        composable(
+            RssbScreen.RssbHome.route,
+            enterTransition = { enterTransition() },
+            exitTransition = { exitTransition() },
+            popEnterTransition = { enterTransition() },
+            popExitTransition = { exitTransition() },
+        ) {
+            RssbHomeScreen(
+                navController = navController,
+                paddingValues = paddingValues
+            )
+        }
+
+        composable(
+            RssbScreen.Search.route,
+            enterTransition = { enterTransition() },
+            exitTransition = { exitTransition() },
+            popEnterTransition = { enterTransition() },
+            popExitTransition = { exitTransition() },
+        ) {
+            RssbSearchScreen(navController = navController)
+        }
+
+        composable(
+            RssbScreen.Library.route,
+            enterTransition = { enterTransition() },
+            exitTransition = { exitTransition() },
+            popEnterTransition = { enterTransition() },
+            popExitTransition = { exitTransition() },
+        ) {
+            RssbLibraryScreen(navController = navController)
+        }
+
+        composable(
+            RssbScreen.Audiobooks.route,
+            enterTransition = { enterTransition() },
+            exitTransition = { exitTransition() },
+            popEnterTransition = { enterTransition() },
+            popExitTransition = { exitTransition() },
+        ) {
+            AudiobooksScreen(navController = navController)
+        }
+
+        composable(
+            RssbScreen.QnA.route,
+            enterTransition = { enterTransition() },
+            exitTransition = { exitTransition() },
+            popEnterTransition = { enterTransition() },
+            popExitTransition = { exitTransition() },
+        ) {
+            QnaScreen(navController = navController)
+        }
+
+        composable(
+            RssbScreen.Shabads.route,
+            enterTransition = { enterTransition() },
+            exitTransition = { exitTransition() },
+            popEnterTransition = { enterTransition() },
+            popExitTransition = { exitTransition() },
+        ) {
+            ShabadsScreen(navController = navController)
+        }
+
+        composable(
+            RssbScreen.Discourses.route,
+            enterTransition = { enterTransition() },
+            exitTransition = { exitTransition() },
+            popEnterTransition = { enterTransition() },
+            popExitTransition = { exitTransition() },
+        ) {
+            DiscoursesScreen(navController = navController)
+        }
+
+        composable(
+            route = RssbScreen.AudiobookDetail.route,
+            arguments = listOf(navArgument("id") { type = NavType.StringType }),
+            enterTransition = { enterTransition() },
+            exitTransition = { exitTransition() },
+            popEnterTransition = { enterTransition() },
+            popExitTransition = { exitTransition() },
+        ) { backStackEntry ->
+            // Placeholder for AudiobookDetailScreen, assuming it might not exist yet or we reuse another
+             val id = backStackEntry.arguments?.getString("id")
+             // TODO: Implement AudiobookDetailScreen or route correctly
+             // For now just stay on home or show placeholder
+             Text("Audiobook Detail: $id")
+        }
+
+
+        // ===== Legacy Local Music Screens (Hidden but kept for reference/compilation) =====
+
         composable(
             Screen.Home.route,
             enterTransition = { enterTransition() },
@@ -255,61 +306,6 @@ fun AppNavigation(
                     navController = navController,
                     onNavigationIconClick = { navController.popBackStack() }
                 )
-            }
-            
-            // ===== RSSB Content Screens =====
-            
-            composable(
-                RssbScreen.RssbHome.route,
-                enterTransition = { enterTransition() },
-                exitTransition = { exitTransition() },
-                popEnterTransition = { enterTransition() },
-                popExitTransition = { exitTransition() },
-            ) {
-                RssbHomeScreen(
-                    navController = navController,
-                    paddingValues = paddingValues
-                )
-            }
-            
-            composable(
-                RssbScreen.Audiobooks.route,
-                enterTransition = { enterTransition() },
-                exitTransition = { exitTransition() },
-                popEnterTransition = { enterTransition() },
-                popExitTransition = { exitTransition() },
-            ) {
-                AudiobooksScreen(navController = navController)
-            }
-            
-            composable(
-                RssbScreen.QnA.route,
-                enterTransition = { enterTransition() },
-                exitTransition = { exitTransition() },
-                popEnterTransition = { enterTransition() },
-                popExitTransition = { exitTransition() },
-            ) {
-                QnaScreen(navController = navController)
-            }
-            
-            composable(
-                RssbScreen.Shabads.route,
-                enterTransition = { enterTransition() },
-                exitTransition = { exitTransition() },
-                popEnterTransition = { enterTransition() },
-                popExitTransition = { exitTransition() },
-            ) {
-                ShabadsScreen(navController = navController)
-            }
-            
-            composable(
-                RssbScreen.Discourses.route,
-                enterTransition = { enterTransition() },
-                exitTransition = { exitTransition() },
-                popEnterTransition = { enterTransition() },
-                popExitTransition = { exitTransition() },
-            ) {
-                DiscoursesScreen(navController = navController)
             }
         }
 }
