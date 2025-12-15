@@ -5,6 +5,13 @@ set -e
 ANDROID_HOME="$HOME/android-sdk"
 CMDLINE_TOOLS_URL="https://dl.google.com/android/repository/commandlinetools-linux-13114758_latest.zip"
 CMDLINE_TOOLS_ZIP="commandlinetools.zip"
+MARKER_FILE="$ANDROID_HOME/.setup_complete"
+
+# Check for marker file to skip setup if already done
+if [ -f "$MARKER_FILE" ]; then
+    echo "Setup already completed (marker file found). Exiting."
+    exit 0
+fi
 
 # Create directory structure
 mkdir -p "$ANDROID_HOME/cmdline-tools"
@@ -42,5 +49,8 @@ yes | sdkmanager --licenses > /dev/null 2>&1 || true
 # Build Tools 34.0.0 (Latest stable as of typical defaults, or we could pick 35.0.0 if available)
 echo "Installing Android SDK packages..."
 sdkmanager "platform-tools" "platforms;android-35" "build-tools;35.0.0"
+
+# Create marker file to indicate successful completion
+touch "$MARKER_FILE"
 
 echo "Android SDK setup complete."
