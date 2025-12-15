@@ -25,8 +25,10 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.vishalk.rssbstream.data.model.Audiobook
 import com.vishalk.rssbstream.data.model.RssbContent
+import com.vishalk.rssbstream.data.model.toSong
 import com.vishalk.rssbstream.presentation.navigation.RssbScreen
 import com.vishalk.rssbstream.presentation.viewmodel.ContentViewModel
+import com.vishalk.rssbstream.presentation.viewmodel.PlayerViewModel
 
 /**
  * Main home screen for RSSB Stream app.
@@ -37,7 +39,8 @@ import com.vishalk.rssbstream.presentation.viewmodel.ContentViewModel
 fun RssbHomeScreen(
     navController: NavController,
     paddingValues: PaddingValues,
-    contentViewModel: ContentViewModel = hiltViewModel()
+    contentViewModel: ContentViewModel = hiltViewModel(),
+    playerViewModel: PlayerViewModel
 ) {
     val isSyncing by contentViewModel.isSyncing.collectAsState()
     val syncError by contentViewModel.syncError.collectAsState()
@@ -131,7 +134,13 @@ fun RssbHomeScreen(
                             items(recentlyPlayed.take(5)) { content ->
                                 RecentContentCard(
                                     content = content,
-                                    onClick = { /* Play content */ }
+                                    onClick = {
+                                        playerViewModel.playSongs(
+                                            listOf(content.toSong()),
+                                            content.toSong(),
+                                            "Recently Played"
+                                        )
+                                    }
                                 )
                             }
                         }
@@ -251,7 +260,13 @@ fun RssbHomeScreen(
                             qnaSessions.take(3).forEach { session ->
                                 QnaSessionItem(
                                     content = session,
-                                    onClick = { /* Play session */ }
+                                    onClick = {
+                                        playerViewModel.playSongs(
+                                            listOf(session.toSong()),
+                                            session.toSong(),
+                                            "Q&A Sessions"
+                                        )
+                                    }
                                 )
                             }
                         }

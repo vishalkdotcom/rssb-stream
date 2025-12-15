@@ -16,6 +16,7 @@ import androidx.navigation.navArgument
 import com.vishalk.rssbstream.data.preferences.UserPreferencesRepository
 import com.vishalk.rssbstream.presentation.screens.*
 import com.vishalk.rssbstream.presentation.screens.rssb.*
+import com.vishalk.rssbstream.presentation.screens.rssb.AudiobookDetailScreen
 import com.vishalk.rssbstream.presentation.viewmodel.PlayerViewModel
 import com.vishalk.rssbstream.presentation.viewmodel.PlaylistViewModel
 
@@ -43,7 +44,8 @@ fun AppNavigation(
         ) {
             RssbHomeScreen(
                 navController = navController,
-                paddingValues = paddingValues
+                paddingValues = paddingValues,
+                playerViewModel = playerViewModel
             )
         }
 
@@ -115,11 +117,14 @@ fun AppNavigation(
             popEnterTransition = { enterTransition() },
             popExitTransition = { exitTransition() },
         ) { backStackEntry ->
-            // Placeholder for AudiobookDetailScreen, assuming it might not exist yet or we reuse another
-             val id = backStackEntry.arguments?.getString("id")
-             // TODO: Implement AudiobookDetailScreen or route correctly
-             // For now just stay on home or show placeholder
-             Text("Audiobook Detail: $id")
+            val id = backStackEntry.arguments?.getString("id")
+            if (id != null) {
+                AudiobookDetailScreen(
+                    audiobookId = id,
+                    navController = navController,
+                    playerViewModel = playerViewModel
+                )
+            }
         }
 
 
