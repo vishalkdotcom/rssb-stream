@@ -1,11 +1,19 @@
-name: Build Android APK
+name: Android CI
 
 on:
   push:
-    branches: [ main ]
+    branches:
+      - '**'
   pull_request:
-    branches: [ main ]
+    branches:
+      - '**'
   workflow_dispatch:
+    inputs:
+      upload_apk:
+        description: 'Upload APK artifact'
+        required: true
+        default: false
+        type: boolean
 
 jobs:
   build:
@@ -36,7 +44,14 @@ jobs:
       - name: Build debug APK
         run: ./gradlew assembleDebug
 
+      - name: Run Lint
+        run: ./gradlew lintDebug
+
+      - name: Run Unit Tests
+        run: ./gradlew testDebugUnitTest
+
       - name: Upload APK artifact
+        if: github.ref == 'refs/heads/main' || inputs.upload_apk == true
         uses: actions/upload-artifact@v4
         with:
           name: RSSBStream-debug-apk
