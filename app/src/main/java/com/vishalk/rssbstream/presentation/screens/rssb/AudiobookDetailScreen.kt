@@ -179,18 +179,16 @@ fun AudiobookDetailScreen(
                  }
             } else {
                 items(chapters, key = { it.id }) { chapter ->
-                    val isCurrent = stablePlayerState.currentSong?.id == chapter.id
-                    val isPlaying = isCurrent && stablePlayerState.isPlaying
+                    // isPlaying and isCurrent support to be added to RssbContentListItem later
+                    // val isCurrent = stablePlayerState.currentSong?.id == chapter.id
+                    // val isPlaying = isCurrent && stablePlayerState.isPlaying
 
                     RssbContentListItem(
                         content = chapter,
-                        isPlaying = isPlaying,
-                        isCurrent = isCurrent,
                         onClick = {
                             val allSongs = chapters.map { it.toSong() }
                             playerViewModel.playSongs(allSongs, chapter.toSong(), audiobook.title)
-                        },
-                        onMenuClick = { /* Optional: show menu */ }
+                        }
                     )
                 }
             }
