@@ -1,8 +1,5 @@
 package com.vishalk.rssbstream
 
-// import androidx.compose.ui.platform.LocalView // No longer needed for this
-// import androidx.core.view.WindowInsetsCompat // No longer needed for this
-import android.Manifest
 import android.content.ComponentName
 import android.content.Intent
 import android.graphics.Color
@@ -10,12 +7,10 @@ import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.os.Trace
-import android.provider.Settings
 import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
-import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
 import androidx.annotation.DrawableRes
 import androidx.compose.animation.AnimatedContent
@@ -29,14 +24,9 @@ import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.animation.slideOutVertically
 import androidx.compose.animation.togetherWith
-import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.isSystemInDarkTheme
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.asPaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
@@ -44,13 +34,10 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.navigationBars
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.Button
-import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.NavigationBarDefaults
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -65,11 +52,9 @@ import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalWindowInfo
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.lerp
-import androidx.core.net.toUri
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.media3.common.util.UnstableApi
@@ -78,17 +63,12 @@ import androidx.media3.session.SessionToken
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
-import com.google.accompanist.permissions.ExperimentalPermissionsApi
-import com.google.accompanist.permissions.rememberMultiplePermissionsState
 import com.google.common.util.concurrent.ListenableFuture
 import com.google.common.util.concurrent.MoreExecutors
-import com.vishalk.rssbstream.R
 import com.vishalk.rssbstream.data.preferences.AppThemeMode
 import com.vishalk.rssbstream.data.preferences.NavBarStyle
 import com.vishalk.rssbstream.data.preferences.UserPreferencesRepository
 import com.vishalk.rssbstream.data.service.MusicService
-import com.vishalk.rssbstream.data.worker.SyncManager
-import com.vishalk.rssbstream.presentation.components.AllFilesAccessDialog
 import com.vishalk.rssbstream.presentation.components.DismissUndoBar
 import com.vishalk.rssbstream.presentation.components.MiniPlayerBottomSpacer
 import com.vishalk.rssbstream.presentation.components.MiniPlayerHeight
@@ -97,6 +77,7 @@ import com.vishalk.rssbstream.presentation.components.NavBarContentHeightFullWid
 import com.vishalk.rssbstream.presentation.components.PlayerInternalNavigationBar
 import com.vishalk.rssbstream.presentation.components.UnifiedPlayerSheet
 import com.vishalk.rssbstream.presentation.navigation.AppNavigation
+import com.vishalk.rssbstream.presentation.navigation.RssbScreen
 import com.vishalk.rssbstream.presentation.navigation.Screen
 import com.vishalk.rssbstream.presentation.screens.SetupScreen
 import com.vishalk.rssbstream.presentation.viewmodel.MainViewModel
@@ -105,7 +86,6 @@ import com.vishalk.rssbstream.ui.theme.RssbStreamTheme
 import com.vishalk.rssbstream.utils.LogUtils
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.collections.immutable.persistentListOf
-import kotlinx.coroutines.delay
 import racra.compose.smooth_corner_rect_library.AbsoluteSmoothCornerShape
 import javax.annotation.concurrent.Immutable
 import javax.inject.Inject
@@ -115,7 +95,7 @@ data class BottomNavItem(
     val label: String,
     @DrawableRes val iconResId: Int,
     @DrawableRes val selectedIconResId: Int? = null,
-    val screen: Screen
+    val rssbScreen: RssbScreen // Changed from Screen to RssbScreen for type safety, though we could use a sealed interface
 )
 
 @UnstableApi
@@ -125,13 +105,7 @@ class MainActivity : ComponentActivity() {
     private val playerViewModel: PlayerViewModel by viewModels()
     private var mediaControllerFuture: ListenableFuture<MediaController>? = null
     @Inject
-    lateinit var userPreferencesRepository: UserPreferencesRepository // Inject here
-    @Inject
-    lateinit var syncManager: SyncManager;
-
-    private val requestAllFilesAccessLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { _ ->
-        // Handle the result in onResume
-    }
+    lateinit var userPreferencesRepository: UserPreferencesRepository
 
     override fun onCreate(savedInstanceState: Bundle?) {
         LogUtils.d(this, "onCreate")
@@ -185,7 +159,7 @@ class MainActivity : ComponentActivity() {
                             if (targetState == true) {
                                 SetupScreen(onSetupComplete = { showSetupScreen = false })
                             } else {
-                                HandlePermissions(mainViewModel)
+                                MainAppContent(playerViewModel, mainViewModel)
                             }
                         }
                     }
@@ -268,93 +242,16 @@ class MainActivity : ComponentActivity() {
         intent.removeExtra(Intent.EXTRA_STREAM)
     }
 
-    @OptIn(ExperimentalPermissionsApi::class)
-    @Composable
-    private fun HandlePermissions(mainViewModel: MainViewModel) {
-        val permissions = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-            listOf(Manifest.permission.READ_MEDIA_AUDIO, Manifest.permission.POST_NOTIFICATIONS)
-        } else {
-            listOf(Manifest.permission.READ_EXTERNAL_STORAGE)
-        }
-        val permissionState = rememberMultiplePermissionsState(permissions = permissions)
-
-        var showAllFilesAccessDialog by remember { mutableStateOf(false) }
-
-        LaunchedEffect(Unit) {
-            if (!permissionState.allPermissionsGranted) {
-                permissionState.launchMultiplePermissionRequest()
-            }
-        }
-
-        if (permissionState.allPermissionsGranted) {
-            LaunchedEffect(Unit) {
-                LogUtils.i(this, "Permissions granted")
-                Log.i("MainActivity", "Permissions granted. Calling mainViewModel.startSync()")
-                mainViewModel.startSync()
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R && !android.os.Environment.isExternalStorageManager()) {
-                    showAllFilesAccessDialog = true
-                }
-            }
-            MainAppContent(playerViewModel, mainViewModel)
-        } else {
-            PermissionsNotGrantedScreen {
-                permissionState.launchMultiplePermissionRequest()
-            }
-        }
-
-        if (showAllFilesAccessDialog) {
-            AllFilesAccessDialog(
-                onDismiss = { showAllFilesAccessDialog = false },
-                onConfirm = {
-                    showAllFilesAccessDialog = false
-                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-                        val intent = Intent(Settings.ACTION_MANAGE_APP_ALL_FILES_ACCESS_PERMISSION)
-                        intent.data = "package:$packageName".toUri()
-                        requestAllFilesAccessLauncher.launch(intent)
-                    }
-                }
-            )
-        }
-    }
-
     @androidx.annotation.OptIn(UnstableApi::class)
     @Composable
     private fun MainAppContent(playerViewModel: PlayerViewModel, mainViewModel: MainViewModel) {
         Trace.beginSection("MainActivity.MainAppContent")
         val navController = rememberNavController()
-        val isSyncing by mainViewModel.isSyncing.collectAsState()
-        val isLibraryEmpty by mainViewModel.isLibraryEmpty.collectAsState()
-
-        // Estado para controlar si el indicador de carga puede mostrarse después de un delay
-        var canShowLoadingIndicator by remember { mutableStateOf(false) }
-
-        val shouldPotentiallyShowLoading = isSyncing && isLibraryEmpty
-
-        LaunchedEffect(shouldPotentiallyShowLoading) {
-            if (shouldPotentiallyShowLoading) {
-                // Espera un breve período antes de permitir que se muestre el indicador de carga
-                // Ajusta este valor según sea necesario (por ejemplo, 300-500 ms)
-                delay(300L)
-                // Vuelve a verificar la condición después del delay,
-                // ya que el estado podría haber cambiado.
-                if (mainViewModel.isSyncing.value && mainViewModel.isLibraryEmpty.value) {
-                    canShowLoadingIndicator = true
-                }
-            } else {
-                // Si las condiciones ya no se cumplen, asegúrate de que no se muestre
-                canShowLoadingIndicator = false
-            }
-        }
 
         Box(modifier = Modifier.fillMaxSize()) {
             MainUI(playerViewModel, navController)
-
-            // Muestra el LoadingOverlay solo si las condiciones se cumplen Y el delay ha pasado
-            if (shouldPotentiallyShowLoading && canShowLoadingIndicator) {
-                LoadingOverlay()
-            }
         }
-        Trace.endSection() // End MainActivity.MainAppContent
+        Trace.endSection()
     }
 
     @androidx.annotation.OptIn(UnstableApi::class)
@@ -364,9 +261,9 @@ class MainActivity : ComponentActivity() {
 
         val commonNavItems = remember {
             persistentListOf(
-                BottomNavItem("Home", R.drawable.rounded_home_24, R.drawable.home_24_rounded_filled, Screen.Home),
-                BottomNavItem("Search", R.drawable.rounded_search_24, R.drawable.rounded_search_24, Screen.Search),
-                BottomNavItem("Library", R.drawable.rounded_library_music_24, R.drawable.round_library_music_24, Screen.Library)
+                BottomNavItem("Home", R.drawable.rounded_home_24, R.drawable.home_24_rounded_filled, RssbScreen.RssbHome),
+                BottomNavItem("Search", R.drawable.rounded_search_24, R.drawable.rounded_search_24, RssbScreen.Search),
+                BottomNavItem("Library", R.drawable.rounded_library_music_24, R.drawable.round_library_music_24, RssbScreen.Library)
             )
         }
         val navBackStackEntry by navController.currentBackStackEntryAsState()
@@ -514,6 +411,8 @@ class MainActivity : ComponentActivity() {
                             shape = actualShape,
                             shadowElevation = navBarElevation
                         ) {
+                            // Convert BottomNavItem(RssbScreen) to expected BottomNavItem(Screen) for compatibility
+                            // Note: We need to adapt PlayerInternalNavigationBar to handle RssbScreen or use string routes
                             PlayerInternalNavigationBar(
                                 navController = navController,
                                 navItems = commonNavItems,
@@ -595,56 +494,6 @@ class MainActivity : ComponentActivity() {
         Trace.endSection()
     }
 
-    @Composable
-    private fun LoadingOverlay() {
-        Box(
-            modifier = Modifier
-                .fillMaxSize()
-                .background(MaterialTheme.colorScheme.background.copy(alpha = 0.9f))
-                .clickable(enabled = false, onClick = {}),
-            contentAlignment = Alignment.Center
-        ) {
-            Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                CircularProgressIndicator()
-                Spacer(modifier = Modifier.height(16.dp))
-                Text(
-                    text = "Preparing your library...",
-                    style = MaterialTheme.typography.titleMedium,
-                    color = MaterialTheme.colorScheme.onBackground
-                )
-            }
-        }
-    }
-
-    @Composable
-    fun PermissionsNotGrantedScreen(onRequestPermissions: () -> Unit) {
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(16.dp),
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Center
-        ) {
-            Text(
-                text = "Permission Required",
-                style = MaterialTheme.typography.headlineSmall,
-                color = MaterialTheme.colorScheme.onBackground
-            )
-            Spacer(modifier = Modifier.height(8.dp))
-            Text(
-                text = "RSSB Stream needs access to your audio files to scan and play your music. Please grant permission to continue.",
-                style = MaterialTheme.typography.bodyLarge,
-                textAlign = TextAlign.Center,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
-            )
-            Spacer(modifier = Modifier.height(24.dp))
-            Button(onClick = onRequestPermissions) {
-                Text("Grant Permission")
-            }
-        }
-    }
-
-
     @androidx.annotation.OptIn(UnstableApi::class)
     override fun onStart() {
         super.onStart()
@@ -666,7 +515,7 @@ class MainActivity : ComponentActivity() {
 
     override fun onResume() {
         super.onResume()
-        syncManager.sync()
+        // Sync is removed as per requirement
     }
 
 
