@@ -3,7 +3,7 @@ name: Android CI
 on:
   push:
     branches:
-      - '**'
+      - 'master'
   pull_request:
     branches:
       - '**'
@@ -22,6 +22,10 @@ on:
         required: true
         default: false
         type: boolean
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
   build:
@@ -64,7 +68,7 @@ jobs:
       #   run: ./gradlew testDebugUnitTest
 
       - name: Upload APK artifact
-        if: github.ref == 'refs/heads/main' || inputs.upload_apk == true || inputs.build_variant == 'release'
+        if: github.ref == 'refs/heads/master' || inputs.upload_apk == true || inputs.build_variant == 'release'
         uses: actions/upload-artifact@v4
         with:
           name: ${{ (inputs.build_variant == 'release') && 'RSSBStream-release-optimized-signed-with-debug-key' || 'RSSBStream-debug-apk' }}
