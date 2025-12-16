@@ -15,7 +15,12 @@
         </trust-anchors>
     </debug-overrides>
     
-    <!-- Allow cleartext for R2 storage domain if needed -->
+    <!-- Allow traffic for R2 storage domain -->
+    <domain-config cleartextTrafficPermitted="false">
+        <domain includeSubdomains="true">vishalk.com</domain>
+    </domain-config>
+    
+    <!-- Allow cleartext for local development -->
     <domain-config cleartextTrafficPermitted="true">
         <domain includeSubdomains="true">localhost</domain>
         <domain includeSubdomains="true">127.0.0.1</domain>

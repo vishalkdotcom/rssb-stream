@@ -12,7 +12,7 @@ object R2Config {
      * - If using r2.dev subdomain: "https://pub-{YOUR_ACCOUNT_ID}.r2.dev"
      * - If using custom domain: "https://stream.yourdomain.com"
      */
-    const val BASE_URL = "https://pub-27aae3aab5364431a6558ffc550e23d4.r2.dev"
+    const val BASE_URL = "https://rssb-stream.r2.vishalk.com"
     
     // Catalog endpoints (JSON metadata files)
     const val AUDIOBOOKS_CATALOG = "$BASE_URL/catalog/audiobooks.json"
