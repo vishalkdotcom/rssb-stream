@@ -130,9 +130,6 @@ dependencies {
     //Work
     implementation(libs.androidx.work.runtime.ktx)
 
-    //Duktape
-    implementation(libs.duktape.android)
-
     //Smooth corners shape
     implementation(libs.smooth.corner.rect.android.compose)
     implementation(libs.androidx.graphics.shapes)
