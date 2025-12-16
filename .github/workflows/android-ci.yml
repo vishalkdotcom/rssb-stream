@@ -9,6 +9,14 @@ on:
       - '**'
   workflow_dispatch:
     inputs:
+      build_variant:
+        description: 'Build Variant (debug or release)'
+        required: true
+        default: 'debug'
+        type: choice
+        options:
+          - debug
+          - release
       upload_apk:
         description: 'Upload APK artifact'
         required: true
@@ -41,8 +49,13 @@ jobs:
       - name: Set up Gradle
         uses: gradle/actions/setup-gradle@v4
 
-      - name: Build debug APK
-        run: ./gradlew assembleDebug
+      - name: Build APK
+        run: |
+          if [[ "${{ github.event_name }}" == "workflow_dispatch" && "${{ inputs.build_variant }}" == "release" ]]; then
+            ./gradlew assembleRelease
+          else
+            ./gradlew assembleDebug
+          fi
 
       # - name: Run Lint
       #   run: ./gradlew lintDebug
@@ -51,8 +64,8 @@ jobs:
       #   run: ./gradlew testDebugUnitTest
 
       - name: Upload APK artifact
-        if: github.ref == 'refs/heads/main' || inputs.upload_apk == true
+        if: github.ref == 'refs/heads/main' || inputs.upload_apk == true || inputs.build_variant == 'release'
         uses: actions/upload-artifact@v4
         with:
-          name: RSSBStream-debug-apk
-          path: app/build/outputs/apk/debug/app-debug.apk
+          name: ${{ (inputs.build_variant == 'release') && 'RSSBStream-release-optimized-signed-with-debug-key' || 'RSSBStream-debug-apk' }}
+          path: ${{ (inputs.build_variant == 'release') && 'app/build/outputs/apk/release/app-release.apk' || 'app/build/outputs/apk/debug/app-debug.apk' }}
