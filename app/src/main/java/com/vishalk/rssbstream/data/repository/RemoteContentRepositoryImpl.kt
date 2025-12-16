@@ -123,10 +123,12 @@ class RemoteContentRepositoryImpl @Inject constructor(
 
     override fun getAudiobooks(): Flow<List<Audiobook>> {
         return contentDao.getAudiobookIds().map { audiobookIds ->
+            // Optimize: Fetch all chapters once and group by ID
+            val allChapters = contentDao.getAllByTypeOnce(ContentType.AUDIOBOOK_CHAPTER)
+            val chaptersByBook = allChapters.groupBy { it.parentId }
+
             audiobookIds.mapNotNull { id ->
-                val chapters = contentDao.getAllByTypeOnce(ContentType.AUDIOBOOK_CHAPTER)
-                    .filter { it.parentId == id }
-                    .sortedBy { it.trackNumber }
+                val chapters = chaptersByBook[id]?.sortedBy { it.trackNumber } ?: return@mapNotNull null
                 
                 if (chapters.isNotEmpty()) {
                     Audiobook(
