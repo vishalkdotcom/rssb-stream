@@ -20,9 +20,11 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
-import com.vishalk.rssbstream.data.model.Audiobook
 import com.vishalk.rssbstream.data.model.RssbContent
 import com.vishalk.rssbstream.data.model.toSong
+import com.vishalk.rssbstream.presentation.components.AudiobookGridItem
+import com.vishalk.rssbstream.presentation.components.SearchAndSortBar
+import com.vishalk.rssbstream.presentation.components.SortOption
 import com.vishalk.rssbstream.presentation.navigation.RssbScreen
 import com.vishalk.rssbstream.presentation.viewmodel.ContentViewModel
 import com.vishalk.rssbstream.presentation.viewmodel.PlayerViewModel
@@ -37,6 +39,27 @@ fun AudiobooksScreen(
     contentViewModel: ContentViewModel = hiltViewModel()
 ) {
     val audiobooks by contentViewModel.audiobooks.collectAsState()
+    var searchQuery by remember { mutableStateOf("") }
+    var sortOption by remember { mutableStateOf(SortOption.TITLE_ASC) }
+
+    val filteredAudiobooks = remember(audiobooks, searchQuery, sortOption) {
+        var result = if (searchQuery.isBlank()) {
+            audiobooks
+        } else {
+            audiobooks.filter {
+                it.title.contains(searchQuery, ignoreCase = true)
+            }
+        }
+
+        result = when (sortOption) {
+            SortOption.TITLE_ASC -> result.sortedBy { it.title }
+            SortOption.TITLE_DESC -> result.sortedByDescending { it.title }
+            SortOption.DURATION_ASC -> result.sortedBy { it.totalDuration }
+            SortOption.DURATION_DESC -> result.sortedByDescending { it.totalDuration }
+        }
+
+        result
+    }
 
     Scaffold(
         topBar = {
@@ -50,90 +73,65 @@ fun AudiobooksScreen(
             )
         }
     ) { padding ->
-        if (audiobooks.isEmpty()) {
-            Box(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(padding),
-                contentAlignment = Alignment.Center
-            ) {
-                Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                    Icon(
-                        Icons.Outlined.MenuBook,
-                        contentDescription = null,
-                        modifier = Modifier.size(64.dp),
-                        tint = MaterialTheme.colorScheme.onSurfaceVariant
-                    )
-                    Spacer(Modifier.height(16.dp))
-                    Text(
-                        "No audiobooks found",
-                        style = MaterialTheme.typography.bodyLarge,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
-                    )
-                    Text(
-                        "Sync catalogs to load content",
-                        style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
-                    )
-                }
-            }
-        } else {
-            LazyVerticalGrid(
-                columns = GridCells.Fixed(2),
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(padding),
-                contentPadding = PaddingValues(16.dp),
-                horizontalArrangement = Arrangement.spacedBy(12.dp),
-                verticalArrangement = Arrangement.spacedBy(12.dp)
-            ) {
-                items(audiobooks) { audiobook ->
-                    AudiobookGridItem(
-                        audiobook = audiobook,
-                        onClick = {
-                            navController.navigate(
-                                RssbScreen.AudiobookDetail.createRoute(audiobook.id)
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(padding)
+        ) {
+            SearchAndSortBar(
+                searchQuery = searchQuery,
+                onSearchQueryChange = { searchQuery = it },
+                currentSort = sortOption,
+                onSortChange = { sortOption = it }
+            )
+
+            if (filteredAudiobooks.isEmpty()) {
+                Box(
+                    modifier = Modifier.fillMaxSize(),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                        Icon(
+                            Icons.Outlined.MenuBook,
+                            contentDescription = null,
+                            modifier = Modifier.size(64.dp),
+                            tint = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                        Spacer(Modifier.height(16.dp))
+                        Text(
+                            if (audiobooks.isEmpty()) "No audiobooks found" else "No matching audiobooks",
+                            style = MaterialTheme.typography.bodyLarge,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                        if (audiobooks.isEmpty()) {
+                            Text(
+                                "Sync catalogs to load content",
+                                style = MaterialTheme.typography.bodySmall,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant
                             )
                         }
-                    )
+                    }
+                }
+            } else {
+                LazyVerticalGrid(
+                    columns = GridCells.Fixed(2),
+                    modifier = Modifier.fillMaxSize(),
+                    contentPadding = PaddingValues(16.dp),
+                    horizontalArrangement = Arrangement.spacedBy(12.dp),
+                    verticalArrangement = Arrangement.spacedBy(12.dp)
+                ) {
+                    items(filteredAudiobooks, key = { it.id }) { audiobook ->
+                        AudiobookGridItem(
+                            audiobook = audiobook,
+                            onClick = {
+                                navController.navigate(
+                                    RssbScreen.AudiobookDetail.createRoute(audiobook.id)
+                                )
+                            }
+                        )
+                    }
                 }
             }
-        }
-    }
-}
-
-@Composable
-private fun AudiobookGridItem(
-    audiobook: Audiobook,
-    onClick: () -> Unit
-) {
-    Card(
-        modifier = Modifier
-            .fillMaxWidth()
-            .clickable(onClick = onClick)
-    ) {
-        Column(modifier = Modifier.padding(12.dp)) {
-            Icon(
-                Icons.Outlined.MenuBook,
-                contentDescription = null,
-                modifier = Modifier
-                    .size(48.dp)
-                    .align(Alignment.CenterHorizontally),
-                tint = MaterialTheme.colorScheme.primary
-            )
-            Spacer(Modifier.height(12.dp))
-            Text(
-                audiobook.title,
-                style = MaterialTheme.typography.titleSmall,
-                fontWeight = FontWeight.Medium,
-                maxLines = 2,
-                overflow = TextOverflow.Ellipsis
-            )
-            Text(
-                "${audiobook.chapterCount} chapters",
-                style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
-            )
         }
     }
 }
