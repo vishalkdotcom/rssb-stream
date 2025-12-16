@@ -697,9 +697,9 @@ private fun CoverArtCropperDialog(
     var isLoading by remember { mutableStateOf(true) }
     var loadError by remember { mutableStateOf<String?>(null) }
     var isSaving by remember { mutableStateOf(false) }
-    var scale by remember { mutableStateOf(1f) }
+    var scale by remember { mutableFloatStateOf(1f) }
     var offset by remember { mutableStateOf(Offset.Zero) }
-    var containerSize by remember { mutableStateOf(0f) }
+    var containerSize by remember { mutableFloatStateOf(0f) }
 
     LaunchedEffect(sourceUri) {
         isLoading = true

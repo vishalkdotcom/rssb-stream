@@ -21,7 +21,7 @@ import com.vishalk.rssbstream.presentation.viewmodel.PlayerViewModel
 import com.vishalk.rssbstream.presentation.viewmodel.PlaylistViewModel
 
 @OptIn(UnstableApi::class)
-@SuppressLint("UnrememberedGetBackStackEntry")
+@SuppressLint("UnrememberedGetBackStackEntry", "NewApi")
 @Composable
 fun AppNavigation(
     playerViewModel: PlayerViewModel,

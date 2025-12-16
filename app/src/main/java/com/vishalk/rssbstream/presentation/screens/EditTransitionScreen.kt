@@ -22,6 +22,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
+import androidx.compose.ui.unit.IntOffset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -394,7 +395,7 @@ private fun ExpressiveMorphingToggle(
             modifier = Modifier
                 .width(indicatorWidth)
                 .fillMaxSize()
-                .offset(x = indicatorOffset)
+                .offset { IntOffset(indicatorOffset.roundToPx(), 0) }
                 .clip(CircleShape) // Un poco más pequeño que el contenedor
                 .background(MaterialTheme.colorScheme.secondaryContainer)
         )

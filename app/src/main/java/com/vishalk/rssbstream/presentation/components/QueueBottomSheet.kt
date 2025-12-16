@@ -170,6 +170,7 @@ import androidx.compose.material3.FloatingActionButtonDefaults
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MediumTopAppBar
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.zIndex
 import coil.size.Size
@@ -214,7 +215,7 @@ fun QueueBottomSheet(
     modifier: Modifier = Modifier,
     tonalElevation: Dp = 10.dp,
     shape: RoundedCornerShape = RoundedCornerShape(topStart = 28.dp, topEnd = 28.dp),
-    ) {
+) {
     val colors = MaterialTheme.colorScheme
     var showTimerOptions by rememberSaveable { mutableStateOf(false) }
     var showClearQueueDialog by remember { mutableStateOf(false) }
@@ -256,7 +257,7 @@ fun QueueBottomSheet(
     }
     val updatedCanDragSheet by rememberUpdatedState(canDragSheetFromList)
     var draggingSheetFromList by remember { mutableStateOf(false) }
-    var listDragAccumulated by remember { mutableStateOf(0f) }
+    var listDragAccumulated by remember { mutableFloatStateOf(0f) }
     val view = LocalView.current
     var lastMovedFrom by remember { mutableStateOf<Int?>(null) }
     var lastMovedTo by remember { mutableStateOf<Int?>(null) }
@@ -1368,9 +1369,9 @@ private fun QueueMiniPlayer(
     isPlaying: Boolean,
     onPlayPause: () -> Unit,
     onNext: () -> Unit,
+    modifier: Modifier = Modifier,
     colorScheme: ColorScheme? = null,
     onTap: (() -> Unit)? = null,
-    modifier: Modifier = Modifier,
 ) {
     val colors = colorScheme ?: MaterialTheme.colorScheme
     val haptic = LocalHapticFeedback.current
@@ -1564,7 +1565,7 @@ fun QueuePlaylistSongItem(
         val dismissalThreshold = 0.25f
         val iconRevealThreshold = dismissalThreshold
 
-        var latestDismissProgress by remember { mutableStateOf(0f) }
+        var latestDismissProgress by remember { mutableFloatStateOf(0f) }
         val swipeableState = rememberSwipeableState(
             initialValue = SwipeState.Resting,
             confirmStateChange = { target ->

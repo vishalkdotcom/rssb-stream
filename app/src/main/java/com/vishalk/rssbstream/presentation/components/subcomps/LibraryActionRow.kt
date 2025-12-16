@@ -72,15 +72,15 @@ fun LibraryActionRow(
     iconRotation: Float,
     onSortClick: () -> Unit,
     showSortButton: Boolean,
-    showGenerateButton: Boolean = true,
     isPlaylistTab: Boolean,
     onGenerateWithAiClick: () -> Unit,
     isFoldersTab: Boolean,
-    modifier: Modifier = Modifier,
     // Breadcrumb parameters
     currentFolder: MusicFolder?,
     onFolderClick: (String) -> Unit,
     onNavigateBack: () -> Unit,
+    modifier: Modifier = Modifier,
+    showGenerateButton: Boolean = true,
     isShuffleEnabled: Boolean = false
 ) {
     Row(

@@ -953,7 +953,7 @@ class PlayerViewModel @Inject constructor(
                 it.type == android.media.AudioDeviceInfo.TYPE_HEARING_AID
         }?.productName?.toString()
 
-        val resolvedName = connectedDevice?.name ?: activeBluetoothAudioName
+        val resolvedName = connectedDevice?.safeGetName() ?: activeBluetoothAudioName
 
         when {
             resolvedName != null -> _bluetoothName.value = resolvedName
@@ -970,10 +970,10 @@ class PlayerViewModel @Inject constructor(
         }
 
         val connectedDevices = buildSet {
-            safeGetConnectedDevices(BluetoothProfile.A2DP).mapNotNullTo(this) { it.name }
-            safeGetConnectedDevices(BluetoothProfile.HEADSET).mapNotNullTo(this) { it.name }
+            safeGetConnectedDevices(BluetoothProfile.A2DP).mapNotNullTo(this) { it.safeGetName() }
+            safeGetConnectedDevices(BluetoothProfile.HEADSET).mapNotNullTo(this) { it.safeGetName() }
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-                safeGetConnectedDevices(BluetoothProfile.LE_AUDIO).mapNotNullTo(this) { it.name }
+                safeGetConnectedDevices(BluetoothProfile.LE_AUDIO).mapNotNullTo(this) { it.safeGetName() }
             }
 
             audioManager.getDevices(android.media.AudioManager.GET_DEVICES_OUTPUTS)
@@ -990,8 +990,16 @@ class PlayerViewModel @Inject constructor(
         _bluetoothAudioDevices.value = connectedDevices.toList().sorted()
     }
 
+    @SuppressLint("MissingPermission")
     private fun safeGetConnectedDevices(profile: Int): List<BluetoothDevice> {
+        if (!hasBluetoothPermission()) return emptyList()
         return runCatching { bluetoothManager.getConnectedDevices(profile) }.getOrElse { emptyList() }
+    }
+
+    @SuppressLint("MissingPermission")
+    private fun BluetoothDevice.safeGetName(): String? {
+        if (!hasBluetoothPermission()) return null
+        return runCatching { this.name }.getOrNull()
     }
 
     fun refreshLocalConnectionInfo() {

@@ -1,5 +1,6 @@
 package com.vishalk.rssbstream
 
+import android.annotation.SuppressLint
 import android.content.ComponentName
 import android.content.Intent
 import android.graphics.Color
@@ -43,6 +44,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -218,6 +220,7 @@ class MainActivity : ComponentActivity() {
         return intent.data
     }
 
+    @SuppressLint("WrongConstant")
     private fun persistUriPermissionIfNeeded(intent: Intent, uri: Uri) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
             val hasPersistablePermission = (intent.flags and Intent.FLAG_GRANT_PERSISTABLE_URI_PERMISSION) != 0
@@ -367,7 +370,7 @@ class MainActivity : ComponentActivity() {
 
                     val bottomBarPadding = if (navBarStyle == NavBarStyle.FULL_WIDTH) 0.dp else systemNavBarInset
 
-                    var componentHeightPx by remember { mutableStateOf(0) }
+                    var componentHeightPx by remember { mutableIntStateOf(0) }
                     val density = LocalDensity.current
                     val shadowOverflowPx = remember(navBarElevation, density) {
                         with(density) { (navBarElevation * 8).toPx() }
@@ -382,7 +385,7 @@ class MainActivity : ComponentActivity() {
                         bottomBarPaddingPx,
                     ) {
                         derivedStateOf {
-                            (componentHeightPx + shadowOverflowPx + bottomBarPaddingPx) * navBarHideFractionClamped
+                            (componentHeightPx.toFloat() + shadowOverflowPx + bottomBarPaddingPx) * navBarHideFractionClamped
                         }
                     }
 

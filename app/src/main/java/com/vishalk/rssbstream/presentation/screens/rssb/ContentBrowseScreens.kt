@@ -139,6 +139,7 @@ fun AudiobooksScreen(
 /**
  * Q&A Sessions browse screen - list of all sessions.
  */
+@androidx.annotation.OptIn(androidx.media3.common.util.UnstableApi::class)
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun QnaScreen(
@@ -186,6 +187,7 @@ fun QnaScreen(
 /**
  * Shabads browse screen.
  */
+@androidx.annotation.OptIn(androidx.media3.common.util.UnstableApi::class)
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ShabadsScreen(
@@ -259,6 +261,7 @@ fun ShabadsScreen(
 /**
  * Discourses browse screen with language tabs.
  */
+@androidx.annotation.OptIn(androidx.media3.common.util.UnstableApi::class)
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun DiscoursesScreen(
@@ -267,7 +270,7 @@ fun DiscoursesScreen(
     playerViewModel: PlayerViewModel = hiltViewModel()
 ) {
     val discourses by contentViewModel.discourses.collectAsState()
-    var selectedTab by remember { mutableStateOf(0) }
+    var selectedTab by remember { mutableIntStateOf(0) }
     
     val languages = listOf(
         "All" to null,

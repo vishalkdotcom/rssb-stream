@@ -34,6 +34,7 @@ import com.vishalk.rssbstream.presentation.viewmodel.PlayerViewModel
  * Main home screen for RSSB Stream app.
  * Displays content categories: Audiobooks, Q&A, Shabads, Discourses.
  */
+@androidx.annotation.OptIn(androidx.media3.common.util.UnstableApi::class)
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun RssbHomeScreen(

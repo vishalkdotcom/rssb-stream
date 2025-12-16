@@ -44,6 +44,7 @@ import com.vishalk.rssbstream.presentation.viewmodel.PlaylistUiState
 import com.vishalk.rssbstream.presentation.viewmodel.PlaylistViewModel
 import com.vishalk.rssbstream.ui.theme.GoogleSansRounded
 
+@androidx.annotation.OptIn(androidx.media3.common.util.UnstableApi::class)
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 fun PlaylistBottomSheet(

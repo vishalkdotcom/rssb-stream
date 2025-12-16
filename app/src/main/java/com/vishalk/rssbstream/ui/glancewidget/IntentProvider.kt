@@ -5,6 +5,7 @@ import android.content.Intent
 import com.vishalk.rssbstream.MainActivity
 
 object IntentProvider {
+    @androidx.annotation.OptIn(androidx.media3.common.util.UnstableApi::class)
     fun mainActivityIntent(context: Context): Intent {
         val intent = Intent(context, MainActivity::class.java)
         // ACTION_MAIN y CATEGORY_LAUNCHER son típicos para iniciar la actividad principal.

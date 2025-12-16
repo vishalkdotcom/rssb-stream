@@ -59,6 +59,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.key
+import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -162,7 +163,7 @@ fun FullPlayerContent(
     val lyricsSearchUiState by playerViewModel.lyricsSearchUiState.collectAsState()
 
     var showFetchLyricsDialog by remember { mutableStateOf(false) }
-    var totalDrag by remember { mutableStateOf(0f) }
+    var totalDrag by remember { mutableFloatStateOf(0f) }
 
     val context = LocalContext.current
     val filePickerLauncher = rememberLauncherForActivityResult(
@@ -542,7 +543,8 @@ fun FullPlayerContent(
                             horizontalArrangement = Arrangement.spacedBy(6.dp)
                         ) {
                             val isRemotePlaybackActive by playerViewModel.isRemotePlaybackActive.collectAsState()
-                            val selectedRouteName by playerViewModel.selectedRoute.map { it?.name }.collectAsState(initial = null)
+                            val selectedRouteNameFlow = remember { playerViewModel.selectedRoute.map { it?.name } }
+                            val selectedRouteName by selectedRouteNameFlow.collectAsState(initial = null)
                             val isBluetoothEnabled by playerViewModel.isBluetoothEnabled.collectAsState()
                             val bluetoothName by playerViewModel.bluetoothName.collectAsState()
                             val showCastLabel = isCastConnecting || (isRemotePlaybackActive && selectedRouteName != null)

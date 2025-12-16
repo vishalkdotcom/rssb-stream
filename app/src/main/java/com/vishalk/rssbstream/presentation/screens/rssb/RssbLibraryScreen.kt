@@ -19,6 +19,7 @@ import com.vishalk.rssbstream.presentation.components.RssbContentListItem
 import com.vishalk.rssbstream.presentation.viewmodel.ContentViewModel
 import com.vishalk.rssbstream.presentation.viewmodel.PlayerViewModel
 
+@androidx.annotation.OptIn(androidx.media3.common.util.UnstableApi::class)
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun RssbLibraryScreen(
@@ -26,7 +27,7 @@ fun RssbLibraryScreen(
     contentViewModel: ContentViewModel = hiltViewModel(),
     playerViewModel: PlayerViewModel = hiltViewModel()
 ) {
-    var selectedTab by remember { mutableStateOf(0) }
+    var selectedTab by remember { mutableIntStateOf(0) }
     val tabs = listOf("Favorites", "Downloads")
 
     val favorites by contentViewModel.favorites.collectAsState()

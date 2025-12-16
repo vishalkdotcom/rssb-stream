@@ -38,6 +38,7 @@ import androidx.compose.material3.rememberTimePickerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -69,12 +70,12 @@ fun TimerOptionsBottomSheet(
 ) {
     var showCustomTimePicker by rememberSaveable { mutableStateOf(false) }
     val context = LocalContext.current
-    var timerSliderPosition by remember { mutableStateOf(0f) }
+    var timerSliderPosition by remember { mutableFloatStateOf(0f) }
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
 
     val isSwitchEnabled = isEndOfTrackTimerActive
 
-    var counterSliderPosition by remember { mutableStateOf(1f) }
+    var counterSliderPosition by remember { mutableFloatStateOf(1f) }
     var isTimerMode by remember { mutableStateOf(true) } // true = timer mode, false = counter mode
 
     // Animate background color

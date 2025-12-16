@@ -40,6 +40,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -164,7 +165,7 @@ fun ExternalPlayerOverlay(
                     val position = rawPosition.coerceIn(0L, totalDuration)
                     val progressFraction = if (totalDuration > 0) position.toFloat() / totalDuration else 0f
 
-                    var sliderPosition by remember(currentSong.id) { mutableStateOf(progressFraction) }
+                    var sliderPosition by remember(currentSong.id) { mutableFloatStateOf(progressFraction) }
                     var isUserScrubbing by remember { mutableStateOf(false) }
 
                     LaunchedEffect(progressFraction) {

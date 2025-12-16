@@ -1,0 +1,36 @@
+> Task :app:checkKotlinGradlePluginConfigurationErrors SKIPPED
+> Task :app:preBuild UP-TO-DATE
+> Task :app:preDebugBuild UP-TO-DATE
+> Task :app:generateDebugBuildConfig UP-TO-DATE
+> Task :app:checkDebugAarMetadata UP-TO-DATE
+> Task :app:processDebugNavigationResources UP-TO-DATE
+> Task :app:compileDebugNavigationResources UP-TO-DATE
+> Task :app:generateDebugResValues UP-TO-DATE
+> Task :app:mapDebugSourceSetPaths UP-TO-DATE
+> Task :app:generateDebugResources UP-TO-DATE
+> Task :app:mergeDebugResources UP-TO-DATE
+> Task :app:packageDebugResources UP-TO-DATE
+> Task :app:parseDebugLocalResources UP-TO-DATE
+> Task :app:createDebugCompatibleScreenManifests UP-TO-DATE
+> Task :app:extractDeepLinksDebug UP-TO-DATE
+> Task :app:processDebugMainManifest UP-TO-DATE
+> Task :app:processDebugManifest UP-TO-DATE
+> Task :app:processDebugManifestForPackage UP-TO-DATE
+> Task :app:processDebugResources UP-TO-DATE
+> Task :app:kspDebugKotlin
+
+> Task :app:compileDebugKotlin
+w: file:///D:/repos/rssb-stream/app/src/main/java/com/vishalk/rssbstream/presentation/components/QueueBottomSheet.kt:48:8 'data class FractionalThreshold : ThresholdConfig' is deprecated. Material's Swipeable has been replaced by Foundation's AnchoredDraggable APIs. Please see developer.android.com for an overview of the changes and a migration guide.
+w: file:///D:/repos/rssb-stream/app/src/main/java/com/vishalk/rssbstream/presentation/components/QueueBottomSheet.kt:396:75 'val Drag: NestedScrollSource' is deprecated. This has been replaced by UserInput.
+w: file:///D:/repos/rssb-stream/app/src/main/java/com/vishalk/rssbstream/presentation/components/QueueBottomSheet.kt:1129:56 'fun mediumTopAppBarColors(containerColor: Color = ..., scrolledContainerColor: Color = ..., navigationIconContentColor: Color = ..., titleContentColor: Color = ..., actionIconContentColor: Color = ...): TopAppBarColors' is deprecated. Use topAppBarColors instead.
+w: file:///D:/repos/rssb-stream/app/src/main/java/com/vishalk/rssbstream/presentation/components/QueueBottomSheet.kt:1569:30 'fun <T : Any> rememberSwipeableState(initialValue: T, animationSpec: AnimationSpec<Float> = ..., confirmStateChange: (@ParameterName(...) T) -> Boolean = ...): SwipeableState<T>' is deprecated. Material's Swipeable has been replaced by Foundation's AnchoredDraggable APIs. Please see developer.android.com for an overview of the changes and a migration guide.
+w: file:///D:/repos/rssb-stream/app/src/main/java/com/vishalk/rssbstream/presentation/components/QueueBottomSheet.kt:1646:18 'fun <T> Modifier.swipeable(state: SwipeableState<T>, anchors: Map<Float, T>, orientation: Orientation, enabled: Boolean = ..., reverseDirection: Boolean = ..., interactionSource: MutableInteractionSource? = ..., thresholds: (@ParameterName(...) T, @ParameterName(...) T) -> ThresholdConfig = ..., resistance: ResistanceConfig? = ..., velocityThreshold: Dp = ...): Modifier' is deprecated. Material's Swipeable has been replaced by Foundation's AnchoredDraggable APIs. Please see developer.android.com for an overview of the changes and a migration guide.
+w: file:///D:/repos/rssb-stream/app/src/main/java/com/vishalk/rssbstream/presentation/components/QueueBottomSheet.kt:1650:44 'constructor(fraction: Float): FractionalThreshold' is deprecated. Material's Swipeable has been replaced by Foundation's AnchoredDraggable APIs. Please see developer.android.com for an overview of the changes and a migration guide.
+w: file:///D:/repos/rssb-stream/app/src/main/java/com/vishalk/rssbstream/presentation/components/subcomps/LibraryActionRow.kt:148:69 'val Icons.Rounded.PlaylistAdd: ImageVector' is deprecated. Use the AutoMirrored version at Icons.AutoMirrored.Rounded.PlaylistAdd.
+w: file:///D:/repos/rssb-stream/app/src/main/java/com/vishalk/rssbstream/presentation/components/subcomps/LibraryActionRow.kt:294:32 'val Icons.Rounded.ArrowBack: ImageVector' is deprecated. Use the AutoMirrored version at Icons.AutoMirrored.Rounded.ArrowBack.
+w: file:///D:/repos/rssb-stream/app/src/main/java/com/vishalk/rssbstream/presentation/screens/EditTransitionScreen.kt:155:44 'fun largeTopAppBarColors(containerColor: Color = ..., scrolledContainerColor: Color = ..., navigationIconContentColor: Color = ..., titleContentColor: Color = ..., actionIconContentColor: Color = ...): TopAppBarColors' is deprecated. Use topAppBarColors instead.
+w: file:///D:/repos/rssb-stream/app/src/main/java/com/vishalk/rssbstream/presentation/screens/LibraryScreen.kt:312:17 'fun ScrollableTabRow(selectedTabIndex: Int, modifier: Modifier = ..., containerColor: Color = ..., contentColor: Color = ..., edgePadding: Dp = ..., indicator: @Composable() ComposableFunction1<@ParameterName(...) List<TabPosition>, Unit> = ..., divider: @Composable() ComposableFunction0<Unit> = ..., tabs: @Composable() ComposableFunction0<Unit>): Unit' is deprecated. Replaced with PrimaryScrollableTabRow and SecondaryScrollableTabRow tab variants.
+w: file:///D:/repos/rssb-stream/app/src/main/java/com/vishalk/rssbstream/presentation/screens/LibraryScreen.kt:319:53 'fun Modifier.tabIndicatorOffset(currentTabPosition: TabPosition): Modifier' is deprecated. Solely for use alongside deprecated TabRowDefaults.Indicator method. For recommended PrimaryIndicator and SecondaryIndicator methods, please use TabIndicatorScope.tabIndicatorOffset method.
+
+BUILD SUCCESSFUL in 16s
+18 actionable tasks: 2 executed, 16 up-to-date
