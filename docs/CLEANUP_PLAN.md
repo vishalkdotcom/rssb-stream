@@ -13,11 +13,12 @@ Remove all code related to local file scanning, local library management, and le
     - `AlbumDetailScreen`, `ArtistDetailScreen`, `MashupScreen`
     - `NavBarCornerRadiusScreen`, `EditTransitionScreen`
 - [ ] **MainActivity.kt**: Remove references to `Screen.kt` objects. Update `routesWithHiddenNavigationBar`.
-- [ ] **SettingsScreen.kt**:
-    - Remove "Music Management" section.
-    - Remove "Developer Options" (Daily Mix).
-    - Remove `FileExplorerBottomSheet` integration.
-- [ ] **Screen.kt**: Delete this file. Migrate `Settings` and `About` to `RssbScreen`.
+- [x] **SettingsScreen.kt**:
+    - [x] Remove "Music Management" section.
+    - [x] Remove "Developer Options" (Daily Mix).
+    - [x] Remove `FileExplorerBottomSheet` integration.
+- [ ] **Screen.kt**: Delete this file.
+    - [x] Migrate `Settings` and `About` to `RssbScreen`.
 
 ### 2. ViewModels
 - [ ] **SettingsViewModel**: Remove `loadDirectory`, `refreshLibrary`, `allowedDirectories`.
