@@ -157,21 +157,21 @@ fun AppNavigation(
             ) {
                 LibraryScreen(navController = navController, playerViewModel = playerViewModel)
             }
-            composable(
-                Screen.Settings.route,
-                enterTransition = { enterTransition() },
-                exitTransition = { exitTransition() },
-                popEnterTransition = { enterTransition() },
-                popExitTransition = { exitTransition() },
-            ) {
-                SettingsScreen(
-                    navController = navController,
-                    playerViewModel = playerViewModel,
-                    onNavigationIconClick = {
-                        navController.popBackStack()
-                    }
-                )
-            }
+        composable(
+            RssbScreen.Settings.route,
+            enterTransition = { enterTransition() },
+            exitTransition = { exitTransition() },
+            popEnterTransition = { enterTransition() },
+            popExitTransition = { exitTransition() },
+        ) {
+            SettingsScreen(
+                navController = navController,
+                playerViewModel = playerViewModel,
+                onNavigationIconClick = {
+                    navController.popBackStack()
+                }
+            )
+        }
             composable(
                 Screen.DailyMixScreen.route,
                 enterTransition = { enterTransition() },
@@ -278,15 +278,16 @@ fun AppNavigation(
                     )
                 }
             }
-            composable(
-                "nav_bar_corner_radius",
-                enterTransition = { enterTransition() },
-                exitTransition = { exitTransition() },
-                popEnterTransition = { enterTransition() },
-                popExitTransition = { exitTransition() },
-            ) {
-                NavBarCornerRadiusScreen(navController)
-            }
+        composable(
+            RssbScreen.NavBarCornerRadius.route,
+            enterTransition = { enterTransition() },
+            exitTransition = { exitTransition() },
+            popEnterTransition = { enterTransition() },
+            popExitTransition = { exitTransition() },
+        ) {
+            NavBarCornerRadiusScreen(navController)
+        }
+
             composable(
                 route = Screen.EditTransition.route,
                 arguments = listOf(navArgument("playlistId") {
@@ -300,17 +301,17 @@ fun AppNavigation(
             ) {
                 EditTransitionScreen(navController = navController)
             }
-            composable(
-                Screen.About.route,
-                enterTransition = { enterTransition() },
-                exitTransition = { exitTransition() },
-                popEnterTransition = { enterTransition() },
-                popExitTransition = { exitTransition() },
-            ) {
-                AboutScreen(
-                    navController = navController,
-                    onNavigationIconClick = { navController.popBackStack() }
-                )
-            }
+        composable(
+            RssbScreen.About.route,
+            enterTransition = { enterTransition() },
+            exitTransition = { exitTransition() },
+            popEnterTransition = { enterTransition() },
+            popExitTransition = { exitTransition() },
+        ) {
+            AboutScreen(
+                navController = navController,
+                onNavigationIconClick = { navController.popBackStack() }
+            )
         }
+    }
 }

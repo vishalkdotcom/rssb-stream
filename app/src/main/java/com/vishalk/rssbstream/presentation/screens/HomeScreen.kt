@@ -67,6 +67,7 @@ import com.vishalk.rssbstream.presentation.components.NavBarContentHeight
 import com.vishalk.rssbstream.presentation.components.SmartImage
 import com.vishalk.rssbstream.presentation.components.StatsOverviewCard
 import com.vishalk.rssbstream.presentation.components.subcomps.PlayingEqIcon
+import com.vishalk.rssbstream.presentation.navigation.RssbScreen
 import com.vishalk.rssbstream.presentation.navigation.Screen
 import com.vishalk.rssbstream.presentation.viewmodel.PlayerViewModel
 import com.vishalk.rssbstream.presentation.viewmodel.StatsViewModel
@@ -129,7 +130,7 @@ fun HomeScreen(
             topBar = {
                 HomeGradientTopBar(
                     onNavigationIconClick = {
-                        navController.navigate(Screen.Settings.route)
+                        navController.navigate(RssbScreen.Settings.route)
                     },
                     onMoreOptionsClick = {
                         showChangelogBottomSheet = true

@@ -71,6 +71,9 @@ fun RssbHomeScreen(
                             Icon(Icons.Default.Refresh, contentDescription = "Sync")
                         }
                     }
+                    IconButton(onClick = { navController.navigate(RssbScreen.Settings.route) }) {
+                        Icon(Icons.Outlined.Settings, contentDescription = "Settings")
+                    }
                 },
                 colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
                     containerColor = Color.Transparent
