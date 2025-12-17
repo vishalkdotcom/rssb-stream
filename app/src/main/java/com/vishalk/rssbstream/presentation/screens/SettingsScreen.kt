@@ -2,8 +2,6 @@ package com.vishalk.rssbstream.presentation.screens
 
 import android.content.Intent
 import android.os.Build
-import android.os.Environment
-import android.provider.Settings
 import androidx.activity.compose.BackHandler
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.FastOutSlowInEasing
@@ -39,13 +37,10 @@ import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.AbsoluteRoundedCornerShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.outlined.ClearAll
 import androidx.compose.material.icons.outlined.Delete
-import androidx.compose.material.icons.outlined.Folder
 import androidx.compose.material.icons.outlined.LightMode
 import androidx.compose.material.icons.outlined.PlayCircle
 import androidx.compose.material.icons.outlined.Style
-import androidx.compose.material.icons.outlined.Sync
 import androidx.compose.material.icons.rounded.Check
 import androidx.compose.material.icons.rounded.ChevronRight
 import androidx.compose.material.icons.rounded.KeyboardArrowDown
@@ -53,9 +48,7 @@ import androidx.compose.material.icons.rounded.MusicNote
 import androidx.compose.material.icons.rounded.Visibility
 import androidx.compose.material.icons.rounded.VisibilityOff
 import androidx.compose.material.icons.outlined.Info
-import androidx.compose.material.icons.outlined.Warning
 import androidx.compose.material.icons.rounded.Palette
-import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.BottomSheetDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.DropdownMenuItem
@@ -89,7 +82,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.input.nestedscroll.NestedScrollConnection
@@ -101,15 +93,12 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDecoration
-import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.core.net.toUri
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.media3.common.util.UnstableApi
@@ -121,14 +110,11 @@ import com.vishalk.rssbstream.data.preferences.AppThemeMode
 import com.vishalk.rssbstream.data.preferences.NavBarStyle
 import com.vishalk.rssbstream.data.preferences.ThemePreference
 import com.vishalk.rssbstream.presentation.components.MiniPlayerHeight
-import com.vishalk.rssbstream.presentation.components.FileExplorerBottomSheet
 import com.vishalk.rssbstream.presentation.components.ExpressiveTopBarContent
 import com.vishalk.rssbstream.presentation.viewmodel.PlayerSheetState
 import com.vishalk.rssbstream.presentation.viewmodel.PlayerViewModel
 import com.vishalk.rssbstream.presentation.viewmodel.SettingsViewModel
-import com.vishalk.rssbstream.ui.theme.GoogleSansRounded
-import kotlinx.collections.immutable.ImmutableList
-import kotlinx.collections.immutable.toImmutableList
+import com.vishalk.rssbstream.presentation.navigation.RssbScreen
 import kotlinx.coroutines.launch
 import kotlin.math.roundToInt
 
@@ -185,12 +171,6 @@ fun SettingsScreen(
     val uiState by settingsViewModel.uiState.collectAsState()
     val geminiApiKey by settingsViewModel.geminiApiKey.collectAsState()
     val playerSheetState by playerViewModel.sheetState.collectAsState()
-    val currentPath by settingsViewModel.currentPath.collectAsState()
-    val directoryChildren by settingsViewModel.currentDirectoryChildren.collectAsState()
-    val allowedDirectories by settingsViewModel.allowedDirectories.collectAsState()
-    // Estado para controlar la visibilidad del diálogo de directorios
-    var showDirectoryDialog by remember { mutableStateOf(false) }
-    var showClearLyricsDialog by remember { mutableStateOf(false) }
 
     BackHandler(enabled = playerSheetState == PlayerSheetState.EXPANDED) {
         playerViewModel.collapsePlayerSheet()
@@ -288,86 +268,6 @@ fun SettingsScreen(
             contentPadding = PaddingValues(top = currentTopBarHeightDp),
             modifier = Modifier.fillMaxSize()
         ) {
-            item(key = "music_management_section") {
-                // Sección de gestión de música
-                SettingsSection(
-                    title = "Music Management",
-                    icon = {
-                        Icon(
-                            imageVector = Icons.Rounded.MusicNote,
-                            contentDescription = null,
-                            tint = MaterialTheme.colorScheme.primary
-                        )
-                    }
-                ) {
-                    Column(modifier = Modifier.clip(shape = RoundedCornerShape(24.dp))) {
-                        val context = LocalContext.current
-
-                        SettingsItem(
-                            title = "Allowed Directories",
-                            subtitle = "Choose the directories you want to get the music files from.",
-                            leadingIcon = {
-                                Icon(
-                                    imageVector = Icons.Outlined.Folder,
-                                    contentDescription = null,
-                                    tint = MaterialTheme.colorScheme.secondary
-                                )
-                            },
-                            trailingIcon = {
-                                Icon(
-                                    imageVector = Icons.Rounded.ChevronRight,
-                                    contentDescription = "Abrir selector",
-                                    tint = MaterialTheme.colorScheme.onSurfaceVariant
-                                )
-                            },
-                            onClick = {
-                                val hasAllFilesPermission = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-                                    Environment.isExternalStorageManager()
-                                } else true
-
-                                if (!hasAllFilesPermission && Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-                                    val intent = Intent(Settings.ACTION_MANAGE_APP_ALL_FILES_ACCESS_PERMISSION)
-                                    intent.data = "package:${context.packageName}".toUri()
-                                    context.startActivity(intent)
-                                    return@SettingsItem
-                                }
-
-                                settingsViewModel.loadDirectory(settingsViewModel.explorerRoot())
-                                showDirectoryDialog = true
-                            }
-                        )
-                        Spacer(modifier = Modifier.height(4.dp))
-                        SettingsItem(
-                            title = "Refresh Library",
-                            subtitle = "Rescan MediaStore and update the local database.",
-                            leadingIcon = {
-                                Icon(
-                                    imageVector = Icons.Outlined.Sync,
-                                    contentDescription = null,
-                                    tint = MaterialTheme.colorScheme.secondary
-                                )
-                            },
-                            onClick = { settingsViewModel.refreshLibrary() }
-                        )
-                        Spacer(modifier = Modifier.height(4.dp))
-                        SettingsItem(
-                            title = "Reset Imported Lyrics",
-                            subtitle = "Remove all imported lyrics from the database.",
-                            leadingIcon = {
-                                Icon(
-                                    imageVector = Icons.Outlined.ClearAll,
-                                    contentDescription = null,
-                                    tint = MaterialTheme.colorScheme.secondary
-                                )
-                            },
-                            onClick = { showClearLyricsDialog = true }
-                        )
-                    }
-                }
-            }
-
-            item(key = "spacer_1") { Spacer(modifier = Modifier.height(16.dp)) }
-
             item(key = "appearance_section") {
                 // Sección de apariencia
                 SettingsSection(
@@ -458,7 +358,7 @@ fun SettingsScreen(
                                         tint = MaterialTheme.colorScheme.onSurfaceVariant
                                     )
                                 },
-                                onClick = { navController.navigate("nav_bar_corner_radius") }
+                                onClick = { navController.navigate(RssbScreen.NavBarCornerRadius.route) }
                             )
                         }
                         Spacer(modifier = Modifier.height(4.dp))
@@ -616,41 +516,6 @@ fun SettingsScreen(
 
             item(key = "spacer_3") { Spacer(modifier = Modifier.height(16.dp)) }
 
-            item(key = "dev_options_section") {
-                // Sección de Opciones de Desarrollador
-                SettingsSection(
-                    title = "Developer Options",
-                    icon = {
-                        Icon(
-                            imageVector = Icons.Outlined.Style,
-                            contentDescription = null,
-                            tint = MaterialTheme.colorScheme.primary
-                        )
-                    }
-                ) {
-                    Column(
-                        Modifier
-                            .background(color = Color.Transparent, shape = RoundedCornerShape(24.dp))
-                            .clip(shape = RoundedCornerShape(24.dp))
-                    ) {
-                        SettingsItem(
-                            title = "Force Daily Mix Regeneration",
-                            subtitle = "Re-creates the daily mix playlist immediately.",
-                            leadingIcon = {
-                                Icon(
-                                    painter = painterResource(id = R.drawable.rounded_instant_mix_24),
-                                    contentDescription = null,
-                                    tint = MaterialTheme.colorScheme.secondary
-                                )
-                            },
-                            onClick = { playerViewModel.forceUpdateDailyMix() }
-                        )
-                    }
-                }
-            }
-
-            item(key = "spacer_4") { Spacer(modifier = Modifier.height(16.dp)) }
-
             item(key = "about_section") {
                 // About section
                 SettingsSection(
@@ -685,7 +550,7 @@ fun SettingsScreen(
                                     tint = MaterialTheme.colorScheme.onSurfaceVariant
                                 )
                             },
-                            onClick = { navController.navigate("about") }
+                            onClick = { navController.navigate(RssbScreen.About.route) }
                         )
                     }
                 }
@@ -697,77 +562,6 @@ fun SettingsScreen(
             collapseFraction = collapseFraction,
             headerHeight = currentTopBarHeightDp,
             onBackPressed = onNavigationIconClick
-        )
-    }
-
-    // Diálogo para seleccionar directorios
-    if (showDirectoryDialog) {
-        BackHandler(enabled = true) {
-            if (settingsViewModel.isAtRoot()) {
-                showDirectoryDialog = false
-            } else {
-                settingsViewModel.navigateUp()
-            }
-        }
-
-        LaunchedEffect(Unit) {
-            settingsViewModel.loadDirectory(settingsViewModel.explorerRoot())
-        }
-
-        FileExplorerBottomSheet(
-            currentPath = currentPath,
-            directoryChildren = directoryChildren,
-            allowedDirectories = allowedDirectories,
-            isLoading = uiState.isLoadingDirectories,
-            isAtRoot = settingsViewModel.isAtRoot(),
-            rootDirectory = settingsViewModel.explorerRoot(),
-            onNavigateTo = settingsViewModel::loadDirectory,
-            onNavigateUp = settingsViewModel::navigateUp,
-            onNavigateHome = { settingsViewModel.loadDirectory(settingsViewModel.explorerRoot()) },
-            onToggleAllowed = settingsViewModel::toggleDirectoryAllowed,
-            onRefresh = settingsViewModel::refreshExplorer,
-            onDone = { showDirectoryDialog = false },
-            onDismiss = { showDirectoryDialog = false }
-        )
-    }
-
-    // Reset lyrics dialog
-    if (showClearLyricsDialog) {
-        AlertDialog(
-            icon = {
-                Icon(
-                    imageVector = Icons.Outlined.Warning,
-                    contentDescription = null
-                )
-            },
-            title = {
-                Text(text = "Reset imported lyrics?")
-            },
-            text = {
-                Text(text = "This action cannot be undone.")
-            },
-            onDismissRequest = {
-                showClearLyricsDialog = false
-            },
-            confirmButton = {
-                TextButton(
-                    onClick = {
-                        showClearLyricsDialog = false
-                        playerViewModel.resetAllLyrics()
-                    }
-                ) {
-                    Text("Confirm")
-                }
-            },
-            dismissButton = {
-                TextButton(
-                    onClick = {
-                        showClearLyricsDialog = false
-                    }
-                ) {
-                    Text("Cancel")
-                }
-            }
         )
     }
 }

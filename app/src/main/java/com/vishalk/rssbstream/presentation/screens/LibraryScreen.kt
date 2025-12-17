@@ -108,6 +108,7 @@ import com.vishalk.rssbstream.presentation.components.PlaylistArtCollage
 import com.vishalk.rssbstream.presentation.components.ReorderTabsSheet
 import com.vishalk.rssbstream.presentation.components.SongInfoBottomSheet
 import com.vishalk.rssbstream.presentation.components.subcomps.LibraryActionRow
+import com.vishalk.rssbstream.presentation.navigation.RssbScreen
 import com.vishalk.rssbstream.presentation.navigation.Screen
 import com.vishalk.rssbstream.presentation.viewmodel.ColorSchemePair
 import com.vishalk.rssbstream.presentation.viewmodel.PlayerViewModel
@@ -268,7 +269,7 @@ fun LibraryScreen(
                             contentColor = MaterialTheme.colorScheme.onPrimaryContainer
                         ),
                         onClick = {
-                            navController.navigate(Screen.Settings.route)
+                            navController.navigate(RssbScreen.Settings.route)
                         }
                     ) {
                         Icon(

@@ -273,6 +273,9 @@ class MainActivity : ComponentActivity() {
         val currentRoute = navBackStackEntry?.destination?.route
         val routesWithHiddenNavigationBar = remember {
             setOf(
+                RssbScreen.Settings.route,
+                RssbScreen.NavBarCornerRadius.route,
+                RssbScreen.About.route,
                 Screen.Settings.route,
                 Screen.PlaylistDetail.route,
                 Screen.DailyMixScreen.route,
@@ -437,7 +440,12 @@ class MainActivity : ComponentActivity() {
                 val stablePlayerState by playerViewModel.stablePlayerState.collectAsState()
                 val showPlayerContentInitially = stablePlayerState.currentSong != null
 
-                val routesWithHiddenMiniPlayer = remember { setOf(Screen.NavBarCrRad.route) }
+                val routesWithHiddenMiniPlayer = remember {
+                    setOf(
+                        Screen.NavBarCrRad.route,
+                        RssbScreen.NavBarCornerRadius.route
+                    )
+                }
                 val shouldHideMiniPlayer by remember(currentRoute) {
                     derivedStateOf { currentRoute in routesWithHiddenMiniPlayer }
                 }

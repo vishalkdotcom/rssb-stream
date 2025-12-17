@@ -14,6 +14,11 @@ sealed class RssbScreen(val route: String) {
     object QnA : RssbScreen("rssb_qna")
     object Shabads : RssbScreen("rssb_shabads")
     object Discourses : RssbScreen("rssb_discourses")
+
+    // General App Screens
+    object Settings : RssbScreen("rssb_settings")
+    object About : RssbScreen("rssb_about")
+    object NavBarCornerRadius : RssbScreen("rssb_navbar_radius")
     
     // Detail routes
     object AudiobookDetail : RssbScreen("rssb_audiobook/{id}") {
