@@ -59,11 +59,11 @@ import com.vishalk.rssbstream.R
 import com.vishalk.rssbstream.data.model.Playlist
 import com.vishalk.rssbstream.data.model.Song
 import com.vishalk.rssbstream.presentation.components.subcomps.SineWaveLine
-import com.vishalk.rssbstream.presentation.navigation.Screen
-import com.vishalk.rssbstream.presentation.screens.PlayerSheetCollapsedCornerRadius
 import com.vishalk.rssbstream.presentation.viewmodel.PlayerViewModel
 import com.vishalk.rssbstream.presentation.viewmodel.PlaylistUiState
 import kotlin.collections.set
+
+val PlayerSheetCollapsedCornerRadius = 16.dp
 
 @androidx.annotation.OptIn(UnstableApi::class)
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3ExpressiveApi::class)
@@ -223,8 +223,9 @@ fun PlaylistItems(
                     if (isAddingToPlaylist && currentSong != null && selectedPlaylists != null) {
                         val currentSelection = selectedPlaylists[playlist.id] ?: false
                         selectedPlaylists[playlist.id] = !currentSelection
-                    } else
-                        navController?.navigate(Screen.PlaylistDetail.createRoute(playlist.id))
+                    }
+                    // else
+                    //     navController?.navigate(Screen.PlaylistDetail.createRoute(playlist.id))
                 }
             }
             PlaylistItem(

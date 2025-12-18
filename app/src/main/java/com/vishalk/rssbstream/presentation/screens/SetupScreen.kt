@@ -85,7 +85,6 @@ import androidx.lifecycle.compose.LocalLifecycleOwner
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
 import com.google.accompanist.permissions.rememberMultiplePermissionsState
 import com.vishalk.rssbstream.R
-import com.vishalk.rssbstream.presentation.components.FileExplorerBottomSheet
 import com.vishalk.rssbstream.presentation.components.PermissionIconCollage
 import com.vishalk.rssbstream.presentation.components.subcomps.MaterialYouVectorDrawable
 import com.vishalk.rssbstream.presentation.components.subcomps.SineWaveLine
@@ -132,7 +131,7 @@ fun SetupScreen(
         // Add media permissions page for all versions
         list.add(SetupPage.MediaPermission)
         // Add directory selection page
-        list.add(SetupPage.DirectorySelection)
+        // list.add(SetupPage.DirectorySelection)
         // Add notifications permission page for Android 13+
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
             list.add(SetupPage.NotificationsPermission)
@@ -148,13 +147,13 @@ fun SetupScreen(
     val pagerState = rememberPagerState(pageCount = { pages.size })
     val scope = rememberCoroutineScope()
 
-    val directorySelectionPageIndex = remember(pages) { pages.indexOf(SetupPage.DirectorySelection) }
+    // val directorySelectionPageIndex = remember(pages) { pages.indexOf(SetupPage.DirectorySelection) }
 
-    LaunchedEffect(pagerState.currentPage) {
-        if (pagerState.currentPage == directorySelectionPageIndex) {
-            setupViewModel.loadMusicDirectories()
-        }
-    }
+    // LaunchedEffect(pagerState.currentPage) {
+    //    if (pagerState.currentPage == directorySelectionPageIndex) {
+    //        setupViewModel.loadMusicDirectories()
+    //    }
+    // }
     BackHandler {
         if (pagerState.currentPage > 0) {
             scope.launch {
@@ -207,23 +206,23 @@ fun SetupScreen(
                 when (page) {
                     SetupPage.Welcome -> WelcomePage()
                     SetupPage.MediaPermission -> MediaPermissionPage(uiState)
-                    SetupPage.DirectorySelection -> DirectorySelectionPage(
-                        uiState = uiState,
-                        currentPath = currentPath,
-                        directoryChildren = directoryChildren,
-                        allowedDirectories = allowedDirectories,
-                        isAtRoot = setupViewModel.isAtRoot(),
-                        explorerRoot = setupViewModel.explorerRoot(),
-                        onNavigateTo = setupViewModel::loadDirectory,
-                        onNavigateUp = setupViewModel::navigateUp,
-                        onRefresh = setupViewModel::refreshCurrentDirectory,
-                        onSkip = {
-                            scope.launch {
-                                pagerState.animateScrollToPage(pagerState.currentPage + 1)
-                            }
-                        },
-                        onToggleAllowed = setupViewModel::toggleDirectoryAllowed
-                    )
+                    // SetupPage.DirectorySelection -> DirectorySelectionPage(
+                    //    uiState = uiState,
+                    //    currentPath = currentPath,
+                    //    directoryChildren = directoryChildren,
+                    //    allowedDirectories = allowedDirectories,
+                    //    isAtRoot = setupViewModel.isAtRoot(),
+                    //    explorerRoot = setupViewModel.explorerRoot(),
+                    //    onNavigateTo = setupViewModel::loadDirectory,
+                    //    onNavigateUp = setupViewModel::navigateUp,
+                    //    onRefresh = setupViewModel::refreshCurrentDirectory,
+                    //    onSkip = {
+                    //        scope.launch {
+                    //            pagerState.animateScrollToPage(pagerState.currentPage + 1)
+                    //        }
+                    //    },
+                    //    onToggleAllowed = setupViewModel::toggleDirectoryAllowed
+                    // )
                     SetupPage.NotificationsPermission -> NotificationsPermissionPage(uiState)
                     SetupPage.AllFilesPermission -> AllFilesPermissionPage(uiState)
                     SetupPage.Finish -> FinishPage()
@@ -292,28 +291,28 @@ fun DirectorySelectionPage(
         LaunchedEffect(Unit) {
             onNavigateTo(explorerRoot)
         }
-        FileExplorerBottomSheet(
-            currentPath = currentPath,
-            directoryChildren = directoryChildren,
-            allowedDirectories = allowedDirectories,
-            isLoading = uiState.isLoadingDirectories,
-            isAtRoot = isAtRoot,
-            rootDirectory = explorerRoot,
-            onNavigateTo = onNavigateTo,
-            onNavigateUp = onNavigateUp,
-            onNavigateHome = { onNavigateTo(explorerRoot) },
-            onToggleAllowed = onToggleAllowed,
-            onRefresh = onRefresh,
-            onDone = { showDirectoryPicker = false },
-            onDismiss = { showDirectoryPicker = false }
-        )
+        // FileExplorerBottomSheet(
+        //     currentPath = currentPath,
+        //     directoryChildren = directoryChildren,
+        //     allowedDirectories = allowedDirectories,
+        //     isLoading = uiState.isLoadingDirectories,
+        //     isAtRoot = isAtRoot,
+        //     rootDirectory = explorerRoot,
+        //     onNavigateTo = onNavigateTo,
+        //     onNavigateUp = onNavigateUp,
+        //     onNavigateHome = { onNavigateTo(explorerRoot) },
+        //     onToggleAllowed = onToggleAllowed,
+        //     onRefresh = onRefresh,
+        //     onDone = { showDirectoryPicker = false },
+        //     onDismiss = { showDirectoryPicker = false }
+        // )
     }
 }
 
 sealed class SetupPage {
     object Welcome : SetupPage()
     object MediaPermission : SetupPage()
-    object DirectorySelection : SetupPage()
+    // object DirectorySelection : SetupPage()
     object NotificationsPermission : SetupPage()
     object AllFilesPermission : SetupPage()
     object Finish : SetupPage()
