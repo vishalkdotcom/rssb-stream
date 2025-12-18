@@ -98,7 +98,6 @@ import com.vishalk.rssbstream.presentation.components.scoped.DeferAt
 import com.vishalk.rssbstream.presentation.components.scoped.PrefetchAlbumNeighborsImg
 import com.vishalk.rssbstream.presentation.components.scoped.rememberSmoothProgress
 import com.vishalk.rssbstream.presentation.components.subcomps.FetchLyricsDialog
-import com.vishalk.rssbstream.presentation.navigation.Screen
 import com.vishalk.rssbstream.presentation.viewmodel.LyricsSearchUiState
 import com.vishalk.rssbstream.presentation.viewmodel.PlayerSheetState
 import com.vishalk.rssbstream.presentation.viewmodel.PlayerViewModel
@@ -1005,8 +1004,8 @@ private fun PlayerSongInfo(
                 interactionSource = remember { MutableInteractionSource() },
                 indication = null
             ) {
-                navController.navigate(Screen.ArtistDetail.createRoute(artistId))
-                onCollapse()
+                // navController.navigate(Screen.ArtistDetail.createRoute(artistId))
+                // onCollapse()
             }
         )
     }

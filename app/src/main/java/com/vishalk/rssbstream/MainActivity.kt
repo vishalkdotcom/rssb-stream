@@ -276,17 +276,6 @@ class MainActivity : ComponentActivity() {
                 RssbScreen.Settings.route,
                 RssbScreen.NavBarCornerRadius.route,
                 RssbScreen.About.route,
-                Screen.Settings.route,
-                Screen.PlaylistDetail.route,
-                Screen.DailyMixScreen.route,
-                Screen.GenreDetail.route,
-                Screen.AlbumDetail.route,
-                Screen.ArtistDetail.route,
-                Screen.DJSpace.route,
-                Screen.NavBarCrRad.route,
-                Screen.About.route,
-                Screen.Stats.route,
-                Screen.EditTransition.route
             )
         }
         val shouldHideNavigationBar by remember(currentRoute) {
@@ -442,7 +431,6 @@ class MainActivity : ComponentActivity() {
 
                 val routesWithHiddenMiniPlayer = remember {
                     setOf(
-                        Screen.NavBarCrRad.route,
                         RssbScreen.NavBarCornerRadius.route
                     )
                 }
